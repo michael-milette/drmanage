@@ -1,0 +1,51 @@
+<?php
+
+use Drupal\webform\Entity\WebformSubmission;
+use Drupal\webform\WebformSubmissionForm;
+use Drupal\drmanage\Controller\AwsformController;
+
+function drmanage_theme($existing, $type, $theme, $path) {
+  return [
+    'drmanage' => [
+      'variables' => [
+        'test_var' => NULL,
+        'data' => [],
+      ]
+    ]
+  ];
+}
+
+function drmanage_webform_submission_insert(WebformSubmission $webform) {
+
+  $data = $webform->getData();
+
+  $url = $data['website_url'];
+  $data = [
+    'access_key' => $data['aws_access_key'],
+    'secret_key' => $data['aws_secret_key'],
+    'bucket_location' => $data['default_region'],
+    'host_base' => 's3.amazonaws.com',
+    'host_bucket' => $data['dns_style_bucket_hostname']
+  ];
+
+  // TODO - proxy information
+
+  // use key 'http' even if you send the request to https://...
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data)
+    )
+  );
+
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+  if ($result === FALSE) {
+    drupal_set_message('Failed for some reason', 'error');
+  }
+  else {
+    drupal_set_message('Success! Maybe. '. print_r($result, true));
+  }
+}
+

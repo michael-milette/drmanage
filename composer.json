@@ -1,0 +1,6 @@
+{
+    "name": "dsutter-gc/drmanage",
+    "description": "Drupal Management Module",
+    "type": "drupal-module",
+    "license": "GPL-2.0+"
+}

@@ -1,0 +1,5 @@
+name: Drupal Management
+description: 'Manages a suite of Drupal sites'
+package: ISED Custom
+type: module
+core: 8.x
