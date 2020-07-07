@@ -18,3 +18,10 @@ drmanage.dashboard:
   parent: drmanage.admin_page
   route_name: drmanage.dashboard
   weight: 100
+
+drmanage.s3_bucket_contents:
+  title: 'S3 Bucket Contents'
+  description: 'List of contents within S3 bucket'
+  parent: drmanage.admin_page
+  route_name: drmanage.s3_bucket_contents
+  weight: 100

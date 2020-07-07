@@ -22,6 +22,14 @@ drmanage.s3_settings_form:
   requirements:
     _permission: 'access administration pages'
 
+drmanage.s3_bucket_contents:
+  path: '/admin/drmanage/s3bucket'
+  defaults:
+    _controller: '\Drupal\drmanage\Controller\DrmanageController::listContents'
+    _title: 'S3 Bucket Contents'
+  requirements:
+    _permission: 'access administration pages'
+
 drmanage.backup:
   path: '/admin/drmanage/dashboard/backup'
   defaults:

@@ -12,6 +12,12 @@ function drmanage_theme($existing, $type, $theme, $path) {
         'something' => 'This is something.',
       ]
     ],
+    'listcontents' => [
+      'variables' => [
+        'path' => $path . '/templates',
+        'hello' => 'Hello World!'
+      ]
+    ],
     // add more templates as needed
   ];
 }

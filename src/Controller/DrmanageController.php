@@ -46,4 +46,11 @@ class DrmanageController {
       drupal_set_message('Success! Maybe. '. print_r($result, true));
     }
   }
+
+  public function listContents() {
+    return [
+      '#theme' => 'listcontents',
+      '#data' => [],
+    ];
+  }
 }
