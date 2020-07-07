@@ -15,7 +15,7 @@ function drmanage_theme($existing, $type, $theme, $path) {
     'listcontents' => [
       'variables' => [
         'path' => $path . '/templates',
-        'hello' => 'Hello World!'
+        'content' => '',
       ]
     ],
     // add more templates as needed
@@ -31,6 +31,7 @@ function drmanage_webform_submission_insert(WebformSubmission $webform) {
   $postdata = [
     'access_key' => $data['aws_access_key'],
     'secret_key' => $data['aws_secret_key'],
+    //'session_token' => $data['aws_session_token'],
     'bucket_location' => $data['default_region'],
     'host_base' => 's3.amazonaws.com',
     'host_bucket' => $data['dns_style_bucket_hostname']

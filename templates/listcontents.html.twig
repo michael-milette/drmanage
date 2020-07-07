@@ -1,1 +1,5 @@
-<h2>{{ hello }}</h2>
+{% autoescape false %}
+<html>
+{{ content | raw }}
+</html>
+{% endautoescape %}

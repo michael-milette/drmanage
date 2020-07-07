@@ -40,6 +40,13 @@ class S3SettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('s3_secret_key'),
     ];
 
+    $form['s3_session_token'] = [
+      '#type' => 'textarea',
+      '#title' => 'Session Token',
+      '#description' => 'S3 Session Token',
+      '#default_value' => $config->get('s3_session_token'),
+    ];
+
     $form['s3_bucket_location'] = [
       '#type' => 'textfield',
       '#title' => 'Bucket location',
@@ -73,6 +80,7 @@ class S3SettingsForm extends ConfigFormBase {
     $settings = [
       's3_access_key',
       's3_secret_key',
+      's3_session_token',
       's3_bucket_location',
       's3_host_base',
       's3_host_bucket',
