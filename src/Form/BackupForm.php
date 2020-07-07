@@ -22,16 +22,10 @@ class BackupForm extends FormBase {
       '#default_value' => 'https://manage-ciodrcoe-dev.apps.dev.openshift.ised-isde.canada.ca',
     ];
 
-    $form['somevalue'] = [
-      '#type' => 'textfield',
-      '#title' => 'Some value',
-      '#description' => 'Any value just for fun.',
-      '#default_value' => '',
-    ];
-
     $form['response'] = [
       '#type' => 'textarea',
       '#title' => 'Response',
+      '#rows' => 15,
       '#description' => '',
       '#default_value' => '',
     ];
@@ -42,7 +36,7 @@ class BackupForm extends FormBase {
       '#tableselect' => False,
       '#tabledrag' => False,
       '#attributes' => [
-        'onclick' => 'return doit()'
+        'onclick' => 'return submitBackupForm()'
       ],
     ];
 
@@ -55,12 +49,5 @@ class BackupForm extends FormBase {
   }
 
   public function submitForm(array &$form, FormStateInterface $form_state) {
-
-    return new HtmlResponse('<p>Well that was interesting.</p>');
-    drupal_set_message('Webform was updated!');
-    return [
-      '#theme' => 'listcontents',
-      '#hello' => 'Go away!',
-    ];
   }
 }

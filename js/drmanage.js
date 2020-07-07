@@ -1,32 +1,25 @@
-console.log("ok drmanage here!");
-
 $ = jQuery;
 
-function doit()
+function submitBackupForm()
 {
-    let host_url = document.getElementById('edit-host-url').value;
-    let somevalue = document.getElementById('edit-somevalue').value;
+  let host_url = document.getElementById('edit-host-url').value;
+  let response = document.querySelector('#drmanage-backupform #edit-response');
+  response.innerHTML = "Backup is running. Please wait...\n\n";
 
-    console.log('POST to ' + host_url + '/test.php');
+  $.ajax({
+    url: '/admin/drmanage/request_backup',
+    type: 'POST',
+    data: {
+      'host_url': host_url
+    },
+    dataType: 'json',
+    success: function(data) {
+      for (msg of data.messages) {
+        response.append(msg + "\n");
+      }
+      response.append("\nBackup is complete.\n");
+    }
+  });
 
-    $.ajax({
-        url: '/admin/drmanage/sendreq',
-        type: 'POST',
-        data: {'somevalue': somevalue},
-        dataType: 'json',
-        success: function(data) {
-            document.querySelector('#drmanage-backupform #edit-response').innerHTML = JSON.stringify(data);
-            console.log('got data ', data)
-        }
-      });
-
-    return false;
+  return false; // Prevent HTML form from submitting
 }
-
-document.addEventListener('DOMContentLoaded', function () {
-//    let selectors = document.querySelectorAll('#drmanage-backupform .js-form-submit');
-//    for (var i = 0; i < selectors.length; i++) {
-//        selectors[i].addEventListener('click', function() {
-//        });
-//    }
-});
