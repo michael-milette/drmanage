@@ -19,7 +19,7 @@ class DrmanageController {
   }
 
   public function backup() {
-    $url = $data['website_url'];
+    $url = 'https://manage-ciodrcoe-dev.apps.dev.openshift.ised-isde.canada.ca/backup.php';
 
     $postdata = [
       'access_key' => $data['aws_access_key'],

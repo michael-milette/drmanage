@@ -33,7 +33,8 @@ drmanage.s3_bucket_contents:
 drmanage.backup:
   path: '/admin/drmanage/dashboard/backup'
   defaults:
-    _controller: '\Drupal\drmanage\Controller\DrmanageController::backup'
+#    _controller: '\Drupal\drmanage\Controller\DrmanageController::backup'
+    _form: '\Drupal\drmanage\Form\BackupForm'
   requirements:
     _permission: 'access administration pages'
     

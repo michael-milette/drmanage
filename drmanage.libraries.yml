@@ -1,0 +1,6 @@
+drmanage:
+  css:
+    component:
+      css/drmanage.css: {}
+  js:
+    js/drmanage.js: {}

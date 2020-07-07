@@ -22,6 +22,15 @@ function drmanage_theme($existing, $type, $theme, $path) {
   ];
 }
 
+/**
+ * Implements hook_page_attachments().
+ *
+ * Adds the drmanage libraries to each page.
+ */
+function drmanage_page_attachments(array &$page) {
+  $page['#attached']['library'][] = 'drmanage/drmanage';
+}
+
 function drmanage_webform_submission_insert(WebformSubmission $webform) {
 
   $data = $webform->getData();
