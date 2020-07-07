@@ -19,6 +19,13 @@ class BackupForm extends FormBase {
       '#type' => 'textfield',
       '#title' => 'Host',
       '#description' => 'Host base URL',
+      '#default_value' => 'https://manage-ciodrcoe-dev.apps.dev.openshift.ised-isde.canada.ca',
+    ];
+
+    $form['result'] = [
+      '#type' => 'textarea',
+      '#title' => 'Result',
+      '#description' => '',
       '#default_value' => '',
     ];
 
@@ -27,6 +34,9 @@ class BackupForm extends FormBase {
       '#value' => 'Backup!',
       '#tableselect' => False,
       '#tabledrag' => False,
+      '#attributes' => [
+        'onclick' => 'return doit()'
+      ],
     ];
 
     $form_state->disableRedirect(true);
