@@ -6,12 +6,13 @@ use Drupal\drmanage\Controller\AwsformController;
 
 function drmanage_theme($existing, $type, $theme, $path) {
   return [
-    'drmanage' => [
+    'dashboard' => [
       'variables' => [
-        'test_var' => NULL,
-        'data' => [],
+        'path' => $path . '/templates',
+        'something' => 'This is something.',
       ]
-    ]
+    ],
+    // add more templates as needed
   ];
 }
 
@@ -20,7 +21,8 @@ function drmanage_webform_submission_insert(WebformSubmission $webform) {
   $data = $webform->getData();
 
   $url = $data['website_url'];
-  $data = [
+
+  $postdata = [
     'access_key' => $data['aws_access_key'],
     'secret_key' => $data['aws_secret_key'],
     'bucket_location' => $data['default_region'],
@@ -31,13 +33,13 @@ function drmanage_webform_submission_insert(WebformSubmission $webform) {
   // TODO - proxy information
 
   // use key 'http' even if you send the request to https://...
-  $options = array(
-    'http' => array(
+  $options = [
+    'http' => [
       'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
       'method'  => 'POST',
-      'content' => http_build_query($data)
-    )
-  );
+      'content' => http_build_query($postdata)
+    ]
+  ];
 
   $context  = stream_context_create($options);
   $result = file_get_contents($url, false, $context);
@@ -48,4 +50,3 @@ function drmanage_webform_submission_insert(WebformSubmission $webform) {
     drupal_set_message('Success! Maybe. '. print_r($result, true));
   }
 }
-

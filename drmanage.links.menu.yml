@@ -1,0 +1,20 @@
+drmanage.admin_page:
+  title: ISED
+  route_name: drmanage.admin_page
+  parent: system.admin
+  description: 'ISED Drupal Management'
+  weight: 100
+
+drmanage.s3_settings:
+  title: 'S3 Settings'
+  description: 'S3 Settings'
+  parent: drmanage.admin_page
+  route_name: drmanage.s3_settings_form
+  weight: 100
+
+drmanage.dashboard:
+  title: 'Drupal Management Dashboard'
+  description: 'Drupal Management Dashboard'
+  parent: drmanage.admin_page
+  route_name: drmanage.dashboard
+  weight: 100
