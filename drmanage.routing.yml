@@ -30,6 +30,14 @@ drmanage.s3_bucket_contents:
   requirements:
     _permission: 'access administration pages'
 
+drmanage.sendreq:
+  path: '/admin/drmanage/sendreq'
+  defaults:
+    _title: 'Send request'
+    _controller: '\Drupal\drmanage\Controller\DrmanageController::sendreq'
+  requirements:
+    _permission: 'access administration pages'
+
 drmanage.backup:
   path: '/admin/drmanage/dashboard/backup'
   defaults:
@@ -37,4 +45,3 @@ drmanage.backup:
     _form: '\Drupal\drmanage\Form\BackupForm'
   requirements:
     _permission: 'access administration pages'
-    

@@ -22,9 +22,16 @@ class BackupForm extends FormBase {
       '#default_value' => 'https://manage-ciodrcoe-dev.apps.dev.openshift.ised-isde.canada.ca',
     ];
 
-    $form['result'] = [
+    $form['somevalue'] = [
+      '#type' => 'textfield',
+      '#title' => 'Some value',
+      '#description' => 'Any value just for fun.',
+      '#default_value' => '',
+    ];
+
+    $form['response'] = [
       '#type' => 'textarea',
-      '#title' => 'Result',
+      '#title' => 'Response',
       '#description' => '',
       '#default_value' => '',
     ];

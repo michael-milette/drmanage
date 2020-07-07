@@ -5,16 +5,17 @@ $ = jQuery;
 function doit()
 {
     let host_url = document.getElementById('edit-host-url').value;
+    let somevalue = document.getElementById('edit-somevalue').value;
 
     console.log('POST to ' + host_url + '/test.php');
 
     $.ajax({
-        url: host_url + '/test.php',
+        url: '/admin/drmanage/sendreq',
         type: 'POST',
-        data: {'somevalue': 'This is a test'},
+        data: {'somevalue': somevalue},
         dataType: 'json',
         success: function(data) {
-            document.querySelector('#drmanage-backupform #edit-result').innerHTML = JSON.stringify(data);
+            document.querySelector('#drmanage-backupform #edit-response').innerHTML = JSON.stringify(data);
             console.log('got data ', data)
         }
       });

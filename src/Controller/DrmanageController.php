@@ -4,7 +4,7 @@ namespace Drupal\drmanage\Controller;
 
 //use Drupal\Core\Controller\ControllerBase;
 //use Drupal\Core\Render\HtmlResponse;
-//use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 //use Symfony\Component\HttpFoundation\RedirectResponse;
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
@@ -18,7 +18,34 @@ class DrmanageController {
     ];
   }
 
+  public function sendreq() {
+    $host_url = $_POST['host_url'];
+    $somevalue = $_POST['somevalue'];
+
+    $postdata = [
+      'somevalue' => $somevalue,
+    ];
+
+    // use key 'http' even if you send the request to https://...
+    $options = [
+      'http' => [
+        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+        'method'  => 'POST',
+        'content' => http_build_query($postdata)
+      ]
+    ];
+
+    $target_url = "https://manage-ciodrcoe-dev.apps.dev.openshift.ised-isde.canada.ca/test.php";
+
+    $context  = stream_context_create($options);
+    $result = file_get_contents($target_url, false, $context);
+    $json = json_decode($result);
+
+    return new JsonResponse($json);
+  }
+
   public function backup() {
+
     $url = 'https://manage-ciodrcoe-dev.apps.dev.openshift.ised-isde.canada.ca/backup.php';
 
     $postdata = [
@@ -50,7 +77,7 @@ class DrmanageController {
   }
 
   public function listContents() {
-    
+
     // Get AWS credentials from config
     $conf = \Drupal::config('drmanage.settings');
 
@@ -58,8 +85,8 @@ class DrmanageController {
     $s3_secret_key = $conf->get('s3_secret_key');
     $s3_session_token = $conf->get('s3_session_token');
     $s3_bucket_location = $conf->get('s3_bucket_location');
-    $s3_host_bucket = $conf->get('s3_host_bucket');  
-  
+    $s3_host_bucket = $conf->get('s3_host_bucket');
+
     putenv("AWS_ACCESS_KEY_ID=$s3_access_key");
     putenv("AWS_SECRET_ACCESS_KEY=$s3_secret_key");
     putenv("AWS_SESSION_TOKEN=$s3_session_token");
