@@ -29,7 +29,7 @@ class DrmanageController {
    */
   public function request_backup() {
     $host_url = $_POST['host_url'];
-
+    
     // Get AWS credentials from config
     $conf = \Drupal::config('drmanage.settings');
 
@@ -68,6 +68,7 @@ class DrmanageController {
    */
   public function request_restore() {
     $host_url = $_POST['host_url'];
+    $backup_file = $_POST['backup_file'];
 
     // Get AWS credentials from config
     $conf = \Drupal::config('drmanage.settings');
@@ -78,6 +79,7 @@ class DrmanageController {
       'bucket_location' => $conf->get('s3_bucket_location'),  // e.g. ca-central-1
       'host_base' => $conf->get('s3_host_base'),              // e.g. s3.amazonaws.com
       'host_bucket' => $conf->get('s3_host_bucket'),          // DNS-style bucket name
+      'backup_file' => $backup_file,
     ];
 
     // use key 'http' even if you send the request to https://...
