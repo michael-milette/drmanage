@@ -64,7 +64,6 @@ class DrmanageController {
 
     if (!empty($nids)) {
       $nid = array_shift($nids);
-      drupal_set_message('doing it for '.$nid);
       $node = \Drupal\node\Entity\Node::load($nid);
       $t = time() - 14400;
       $url = $node->set('field_last_backup', date('Y-m-d', $t) . 'T' . date('H:i:s', $t));
@@ -119,7 +118,6 @@ class DrmanageController {
 
     if (!empty($nids)) {
       $nid = array_shift($nids);
-      drupal_set_message('doing it for '.$nid);
       $node = \Drupal\node\Entity\Node::load($nid);
       $t = time() - 14400;
       $url = $node->set('field_last_restore', date('Y-m-d', $t) . 'T' . date('H:i:s', $t));
