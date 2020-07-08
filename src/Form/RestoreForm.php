@@ -17,11 +17,28 @@ class RestoreForm extends FormBase {
 
     public function buildForm(array $form, FormStateInterface $form_state) {
 
+        $hosts = [];
+
+        $nids = \Drupal::entityQuery('node')
+        ->condition('type', 'drupal_site')
+        ->condition('status', NODE_PUBLISHED)
+        ->execute();
+    
+        foreach ($nids as $nid) {
+          $node = \Drupal\node\Entity\Node::load($nid);
+          $url = $node->get('field_url')->value;
+          $title = $node->getTitle();
+          $hosts[$url] = $title;
+        }
+    
+        natcasesort($hosts);
+
         $form['host_url'] = [
-            '#type' => 'textfield',
+            '#type' => 'select',
             '#title' => 'Host',
-            '#description' => 'Host base URL',
-            '#default_value' => 'https://manage-ciodrcoe-dev.apps.dev.openshift.ised-isde.canada.ca',
+            '#description' => 'Host URL to restore to',
+            '#options' => $hosts,
+            '#default_value' => '',
         ];
 
         $form['restore'] = array(
@@ -34,9 +51,8 @@ class RestoreForm extends FormBase {
         $form['response'] = [
             '#type' => 'textarea',
             '#title' => 'Response',
-            '#rows' => 15,
+            '#rows' => 18,
             '#description' => '',
-            '#default_value' => '',
         ];
 
           $form['submit'] = [
