@@ -9,57 +9,55 @@ use Symfony\Component\Validator\Constraints\Length;
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
 
-class RestoreIdeasForm extends FormBase {
+class RestoreForm extends FormBase {
+    
+    public function getFormId() {
+        return 'drmanage_restoreform';
+    }
 
-  public function getFormId() {
-    return 'drmanage_restorideasform';
-  }
+    public function buildForm(array $form, FormStateInterface $form_state) {
 
-  public function buildForm(array $form, FormStateInterface $form_state) {
+        $form['host_url'] = [
+            '#type' => 'textfield',
+            '#title' => 'Host',
+            '#description' => 'Host base URL',
+            '#default_value' => 'https://manage-ciodrcoe-dev.apps.dev.openshift.ised-isde.canada.ca',
+        ];
 
-    $form['host_url'] = [
-      '#type' => 'textfield',
-      '#title' => 'Host',
-      '#description' => 'Host base URL',
-      '#default_value' => 'https://manage-ciodrcoe-dev.apps.dev.openshift.ised-isde.canada.ca',
-    ];
+        $form['restore'] = array(
+            '#type' => 'radios',
+            '#title' => 'Select backup to restore',
+            '#default_value' => '',
+            '#options' => $this->getRestoreOptions(),
+        );
 
-    $form['backup'] = array(
-      '#type' => 'radios',
-      '#title' => 'Select backup source',
-      '#default_value' => '',
-      '#options' => $this->getBackupOptions(),
-    );
+        $form['response'] = [
+            '#type' => 'textarea',
+            '#title' => 'Response',
+            '#description' => '',
+            '#default_value' => '',
+        ];
 
-    $form['response'] = [
-      '#type' => 'textarea',
-      '#title' => 'Response',
-      '#rows' => 15,
-      '#description' => '',
-      '#default_value' => '',
-    ];
+          $form['submit'] = [
+            '#type' => 'submit',
+            '#value' => 'Restore!',
+            '#tableselect' => False,
+            '#tabledrag' => False,
+            '#attributes' => [
+              'onclick' => 'return submitRestoreForm()'
+            ],
+        ];
 
-    $form['submit'] = [
-      '#type' => 'submit',
-      '#value' => 'Restore!',
-      '#tableselect' => False,
-      '#tabledrag' => False,
-      '#attributes' => [
-        'onclick' => 'return submitBackupForm()'
-      ],
-    ];
+        $form_state->disableRedirect(true);
 
-    $form_state->disableRedirect(true);
-
-    return $form;
-  }
+        return $form;
+    }
 
   /**
    * Create an options list based on the most recent backups in the S3 bucket.
    * @return array|NULL[]
    */
-  private function getBackupOptions()
-  {
+  private function getRestoreOptions() {
     $options = [];
 
     // Get AWS credentials from config
@@ -103,6 +101,7 @@ class RestoreIdeasForm extends FormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
   }
 
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state){
   }
+
 }

@@ -33,7 +33,7 @@ drmanage.s3_bucket_contents:
 drmanage.request_backup:
   path: '/admin/drmanage/request_backup'
   defaults:
-    _title: 'Send request'
+    _title: 'Send backup request'
     _controller: '\Drupal\drmanage\Controller\DrmanageController::request_backup'
   requirements:
     _permission: 'access administration pages'
@@ -46,11 +46,20 @@ drmanage.backup:
   requirements:
     _permission: 'access administration pages'
 
-drmanage.restoreideas:
-  path: '/admin/drmanage/dashboard/restoreideas'
+drmanage.restore:
+  path: '/admin/drmanage/dashboard/restore'
   defaults:
-    _form: '\Drupal\drmanage\Form\RestoreIdeasForm'
-    _title: 'Restore Ideas'
+    _form: '\Drupal\drmanage\Form\RestoreForm'
+    _title: 'Restore'
   requirements:
     _permission: 'access administration pages'
+
+drmanage.request_backup:
+  path: '/admin/drmanage/request_restore'
+  defaults:
+    _title: 'Send restore request'
+    _controller: '\Drupal\drmanage\Controller\DrmanageController::request_restore'
+  requirements:
+    _permission: 'access administration pages'
+
 

@@ -23,3 +23,27 @@ function submitBackupForm()
 
   return false; // Prevent HTML form from submitting
 }
+
+function submitRestoreForm()
+{
+  let host_url = document.getElementById('edit-host-url').value;
+  let response = document.querySelector('#drmanage-restoreform #edit-response');
+  response.innerHTML = "Restore is in progress. Please wait...\n\n";
+
+  $.ajax({
+    url: '/admin/drmanage/request_restore',
+    type: 'POST',
+    data: {
+      'host_url': host_url
+    },
+    dataType: 'json',
+    success: function(data) {
+      for (msg of data.messages) {
+        response.append(msg + "\n");
+      }
+      response.append("\nRestore is complete.\n");
+    }
+  });
+
+  return false; // Prevent HTML form from submitting
+}

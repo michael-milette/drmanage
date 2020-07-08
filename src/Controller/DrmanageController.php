@@ -61,6 +61,45 @@ class DrmanageController {
     return new JsonResponse($json);
   }
 
+    /**
+   * Handle a restore request.
+   * This function will contact the remote host and initiate a restore.
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   */
+  public function request_restore() {
+    $host_url = $_POST['host_url'];
+
+    // Get AWS credentials from config
+    $conf = \Drupal::config('drmanage.settings');
+
+    $postdata = [
+      'access_key' => $conf->get('s3_access_key'),
+      'secret_key' => $conf->get('s3_secret_key'),
+      'bucket_location' => $conf->get('s3_bucket_location'),  // e.g. ca-central-1
+      'host_base' => $conf->get('s3_host_base'),              // e.g. s3.amazonaws.com
+      'host_bucket' => $conf->get('s3_host_bucket'),          // DNS-style bucket name
+    ];
+
+    // use key 'http' even if you send the request to https://...
+    $options = [
+      'http' => [
+        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+        'method'  => 'POST',
+        'content' => http_build_query($postdata)
+      ]
+    ];
+
+    $context  = stream_context_create($options);
+    $result = file_get_contents("$host_url/restore.php", false, $context);
+
+    if ($result === FALSE) {
+      drupal_set_message('Failed for some reason', 'error');
+    }
+
+    $json = json_decode($result);
+    return new JsonResponse($json);
+  }
+
   public function listContents() {
 
     // Get AWS credentials from config
@@ -68,13 +107,11 @@ class DrmanageController {
 
     $s3_access_key = $conf->get('s3_access_key');
     $s3_secret_key = $conf->get('s3_secret_key');
-    $s3_session_token = $conf->get('s3_session_token');
     $s3_bucket_location = $conf->get('s3_bucket_location');
     $s3_host_bucket = $conf->get('s3_host_bucket');
 
     putenv("AWS_ACCESS_KEY_ID=$s3_access_key");
     putenv("AWS_SECRET_ACCESS_KEY=$s3_secret_key");
-    putenv("AWS_SESSION_TOKEN=$s3_session_token");
 
     $s3 = new S3Client([
       'version' => 'latest',
