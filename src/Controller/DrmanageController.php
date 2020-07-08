@@ -29,7 +29,7 @@ class DrmanageController {
    */
   public function request_backup() {
     $host_url = $_POST['host_url'];
-    
+
     // Get AWS credentials from config
     $conf = \Drupal::config('drmanage.settings');
 
@@ -55,6 +55,20 @@ class DrmanageController {
 
     if ($result === FALSE) {
       drupal_set_message('Failed for some reason', 'error');
+    }
+
+    $nids = \Drupal::entityQuery('node')
+    ->condition('type', 'drupal_site')
+    ->condition('field_url', $host_url, '=')
+    ->execute();
+
+    if (!empty($nids)) {
+      $nid = array_shift($nids);
+      drupal_set_message('doing it for '.$nid);
+      $node = \Drupal\node\Entity\Node::load($nid);
+      $t = time() - 14400;
+      $url = $node->set('field_last_backup', date('Y-m-d', $t) . 'T' . date('H:i:s', $t));
+      $node->save();
     }
 
     $json = json_decode($result);
@@ -96,6 +110,20 @@ class DrmanageController {
 
     if ($result === FALSE) {
       drupal_set_message('Failed for some reason', 'error');
+    }
+
+    $nids = \Drupal::entityQuery('node')
+    ->condition('type', 'drupal_site')
+    ->condition('field_url', $host_url, '=')
+    ->execute();
+
+    if (!empty($nids)) {
+      $nid = array_shift($nids);
+      drupal_set_message('doing it for '.$nid);
+      $node = \Drupal\node\Entity\Node::load($nid);
+      $t = time() - 14400;
+      $url = $node->set('field_last_restore', date('Y-m-d', $t) . 'T' . date('H:i:s', $t));
+      $node->save();
     }
 
     $json = json_decode($result);
