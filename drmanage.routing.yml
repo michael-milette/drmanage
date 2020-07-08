@@ -54,7 +54,7 @@ drmanage.restore:
   requirements:
     _permission: 'access administration pages'
 
-drmanage.request_backup:
+drmanage.request_restore:
   path: '/admin/drmanage/request_restore'
   defaults:
     _title: 'Send restore request'
