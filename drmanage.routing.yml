@@ -41,7 +41,16 @@ drmanage.request_backup:
 drmanage.backup:
   path: '/admin/drmanage/dashboard/backup'
   defaults:
-#    _controller: '\Drupal\drmanage\Controller\DrmanageController::backup'
     _form: '\Drupal\drmanage\Form\BackupForm'
+    _title: 'Backup'
   requirements:
     _permission: 'access administration pages'
+
+drmanage.restoreideas:
+  path: '/admin/drmanage/dashboard/restoreideas'
+  defaults:
+    _form: '\Drupal\drmanage\Form\RestoreIdeasForm'
+    _title: 'Restore Ideas'
+  requirements:
+    _permission: 'access administration pages'
+
