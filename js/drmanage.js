@@ -28,13 +28,15 @@ function submitRestoreForm()
 {
   let host_url = document.getElementById('edit-host-url').value;
   let response = document.querySelector('#drmanage-restoreform #edit-response');
+  let backup_file = document.querySelector('#edit-restore input[name="restore"]:checked').value;
   response.innerHTML = "Restore is in progress. Please wait...\n\n";
 
   $.ajax({
     url: '/admin/drmanage/request_restore',
     type: 'POST',
     data: {
-      'host_url': host_url
+      'host_url': host_url,
+      'backup_file': backup_file
     },
     dataType: 'json',
     success: function(data) {

@@ -34,6 +34,7 @@ class RestoreForm extends FormBase {
         $form['response'] = [
             '#type' => 'textarea',
             '#title' => 'Response',
+            '#rows' => 15,
             '#description' => '',
             '#default_value' => '',
         ];
