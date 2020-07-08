@@ -15,11 +15,28 @@ class BackupForm extends FormBase {
 
   public function buildForm(array $form, FormStateInterface $form_state) {
 
+    $hosts = [];
+
+    $nids = \Drupal::entityQuery('node')
+    ->condition('type', 'drupal_site')
+    ->condition('status', NODE_PUBLISHED)
+    ->execute();
+
+    foreach ($nids as $nid) {
+      $node = \Drupal\node\Entity\Node::load($nid);
+      $url = $node->get('field_url')->value;
+      $title = $node->getTitle();
+      $hosts[$url] = $title;
+    }
+
+    natcasesort($hosts);
+
     $form['host_url'] = [
-      '#type' => 'textfield',
+      '#type' => 'select',
       '#title' => 'Host',
-      '#description' => 'Host base URL',
-      '#default_value' => 'https://manage-ciodrcoe-dev.apps.dev.openshift.ised-isde.canada.ca',
+      '#description' => 'Host to back up',
+      '#options' => $hosts,
+      '#default_value' => '',
     ];
 
     $form['response'] = [
@@ -27,7 +44,6 @@ class BackupForm extends FormBase {
       '#title' => 'Response',
       '#rows' => 15,
       '#description' => '',
-      '#default_value' => '',
     ];
 
     $form['submit'] = [
