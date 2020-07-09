@@ -132,7 +132,7 @@ class DrmanageController {
     $result = file_get_contents("$host_url/restore.php", false, $context);
 
     if ($result === FALSE) {
-      $json['messages'][] = "Backup failed... exiting.";
+      $json['messages'][] = "Restore failed... exiting.";
       return new JsonResponse($json);
     }
 
