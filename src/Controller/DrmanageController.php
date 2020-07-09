@@ -39,6 +39,7 @@ class DrmanageController {
       'bucket_location' => $conf->get('s3_bucket_location'),  // e.g. ca-central-1
       'host_base' => $conf->get('s3_host_base'),              // e.g. s3.amazonaws.com
       'host_bucket' => $conf->get('s3_host_bucket'),          // DNS-style bucket name
+      'host_url' => $host_url,
     ];
 
     // use key 'http' even if you send the request to https://...
