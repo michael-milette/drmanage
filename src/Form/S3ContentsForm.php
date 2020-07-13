@@ -77,12 +77,6 @@ class S3ContentsForm extends FormBase {
             case '0':
                 // Delete content
                 foreach ($results as $result) {
-
-                    if ($fp = fopen('/tmp/tableselectEDD', 'a')) {
-                        fwrite($fp, $result);
-                        fclose($fp);
-                    }
-
                     try {
                         $deleteItem = $s3->deleteObject([
                             'Bucket' => $s3_host_bucket,
@@ -132,7 +126,7 @@ class S3ContentsForm extends FormBase {
         for ($n = 0; $n < sizeof($result['Contents']); $n++) {
           $contents[$result['Contents'][$n]['Key']] = [
               'file' => $result['Contents'][$n]['Key'],
-              'size' => sprintf('%0.2f MB', $result['Contents'][$n]['Size'] / 1000000), // bytes to mb
+              'size' => sprintf('%0.2f MB', $result['Contents'][$n]['Size'] / 1000000), // bytes to MB
           ];
 
         }
