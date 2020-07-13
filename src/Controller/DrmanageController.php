@@ -136,7 +136,7 @@ class DrmanageController {
       return new JsonResponse($json);
     }
 
-    // edit date of last backup
+    // edit date of last restore
     $t = time() - 14400;
     $url = $node->set('field_last_restore', date('Y-m-d', $t) . 'T' . date('H:i:s', $t));
     $node->save();
@@ -179,16 +179,19 @@ class DrmanageController {
 
     // Format results in html table
     $content = '<h3>Bucket Name: ' . $result['Name'] . '</h3>' .  '<h3>Objects Found: ' . $result['KeyCount'] . '</h3>';
+    $content .= '<form method="POST" action=???>';
     $content .= '<table class="table">';
-    $content .= '<tr><th>File</th><th>Size</th><th>LastModified</th>';
+    $content .= '<tr><th>Selection</th><th>File</th><th>Size (Bytes)</th><th>Last Modified</th>';
     for ($n = 0; $n <sizeof($result['Contents']); $n++) {
       $content .= '<tr>';
+      $content .= '<td><input type="checkbox" name="items[]" value="' . $result['Contents'][$n]['Key'] . '" /></td>';
       $content .= '<td>' . $result['Contents'][$n]['Key'] . '</td>';
       $content .= '<td>' . $result['Contents'][$n]['Size'] . '</td>';
       $content .= '<td>' . $result['Contents'][$n]['LastModified'] . '</td>';
       $content .= '<tr>';
     }
-    $content .= '</table>';
+    $content .= '</table></form>';
+    $content .= '<button type="submit">Delete selected items</button>';
 
     // Print content in /tmp/listcontents
     if ($fp = fopen('/tmp/listcontents', 'a')) {
