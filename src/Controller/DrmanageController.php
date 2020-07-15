@@ -193,12 +193,6 @@ class DrmanageController {
     $content .= '</table></form>';
     $content .= '<button type="submit">Delete selected items</button>';
 
-    // Print content in /tmp/listcontents
-    if ($fp = fopen('/tmp/listcontents', 'a')) {
-      fwrite($fp, $content);
-      fclose($fp);
-    }
-
     return [
       '#theme' => 'listcontents',
       '#content' => $content,
@@ -207,7 +201,6 @@ class DrmanageController {
 
   public function update_restore_options() {
     
-    $json = [];
     $url = $_POST['host_url'];
 
     $nids = \Drupal::entityQuery('node')
@@ -244,7 +237,8 @@ class DrmanageController {
         'Prefix' => $app_name,
       ]);
     } catch(S3Exception $e) {
-      return $options;
+      $json['html'][] = '<p>listObjectsV2 error...</p>';
+      return new JsonResponse($json);
     }
 
     // Make an options list from the last 5 items
@@ -255,12 +249,7 @@ class DrmanageController {
 
       // Format the selector options in drupalized html
       $patterns = array('/', '.tar.gz');
-      //$patterns[0] = '/';
-      //$patterns[1] = '.tar.gz';
-
       $replacements = array('', 'targz');
-      //$replacements[0] = '';
-      //$replacements[1] = 'targz';
 
       $filename = preg_replace($patterns, $replacements, $results['Contents'][$n]['Key']);
 
@@ -278,7 +267,6 @@ class DrmanageController {
 
       $json['html'][] = $html;
     }
-
     return new JsonResponse($json);
   }
 }

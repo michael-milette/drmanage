@@ -18,29 +18,32 @@ class RestoreForm extends FormBase {
     public function buildForm(array $form, FormStateInterface $form_state) {
 
         $hosts = [];
-        $app_name = [];
 
         $nids = \Drupal::entityQuery('node')
         ->condition('type', 'drupal_site')
         ->condition('status', NODE_PUBLISHED)
         ->execute();
-    
+
+      
         foreach ($nids as $nid) {
           $node = \Drupal\node\Entity\Node::load($nid);
           $url = $node->get('field_url')->value;
           $title = $node->getTitle();
-          $app_name[] = $node->get('field_application_name')->value;
           $hosts[$url] = $title;
+          $app_name[$url] = $node->get('field_application_name')->value;
         }
-    
+
         natcasesort($hosts);
+
+        $urls = array_keys($hosts);
+        $default_appname = $app_name[$urls[0]];
 
         $form['host_url'] = [
             '#type' => 'select',
             '#title' => 'Host',
             '#description' => 'Host URL to restore to',
             '#options' => $hosts,
-            '#default_value' => '',
+            '#default_value' => 'Select a host.',
             '#attributes' => [
               'onchange' => 'updateRestoreOptions(this)'
             ],
@@ -50,7 +53,7 @@ class RestoreForm extends FormBase {
             '#type' => 'radios',
             '#title' => 'Select backup to restore',
             '#default_value' => '',
-            '#options' => $this->getRestoreOptions($app_name[0]),
+            '#options' => $this->getRestoreOptions($default_appname),
         );
 
         $form['response'] = [
@@ -77,22 +80,10 @@ class RestoreForm extends FormBase {
 
   /**
    * Create an options list based on the most recent backups in the S3 bucket.
-   * @return array|NULL[]
    */
   private function getRestoreOptions($app_name) {
+    
     $options = [];
-/*
-    $nids = \Drupal::entityQuery('node')
-        ->condition('type', 'drupal_site')
-        ->condition('status', NODE_PUBLISHED)
-        ->condition('field_url', $url, '=')
-        ->execute();
-
-    foreach ($nids as $nid) {
-      $node = \Drupal\node\Entity\Node::load($nid);
-      $app_name = $node->get('field_application_name')->value;
-    }
-    */
 
     // Get AWS credentials from config
     $conf = \Drupal::config('drmanage.settings');
@@ -131,6 +122,7 @@ class RestoreForm extends FormBase {
     }
 
     return $options;
+    
   }
 
   public function validateForm(array &$form, FormStateInterface $form_state) {

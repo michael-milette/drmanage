@@ -53,7 +53,8 @@ function submitRestoreForm()
 function updateRestoreOptions(selector)
 {
     console.log('selector changed to ' + selector.value);
-    let edit_restore = document.getElementById('edit-restore');
+    //let edit_restore = document.getElementById('edit-restore');
+    let edit_restore = document.querySelector('#drmanage-restoreform #edit-restore');
     edit_restore.innerHTML = '';
 
     $.ajax({
@@ -64,7 +65,7 @@ function updateRestoreOptions(selector)
       },
       dataType: 'json',
       success: function(data) {
-        edit_restore.innerHTML = data.html;
+        edit_restore.innerHTML = data.html.join("");
       }
     });
 
