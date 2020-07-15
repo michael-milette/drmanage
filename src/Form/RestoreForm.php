@@ -18,6 +18,7 @@ class RestoreForm extends FormBase {
     public function buildForm(array $form, FormStateInterface $form_state) {
 
         $hosts = [];
+        $app_name = [];
 
         $nids = \Drupal::entityQuery('node')
         ->condition('type', 'drupal_site')
@@ -28,6 +29,7 @@ class RestoreForm extends FormBase {
           $node = \Drupal\node\Entity\Node::load($nid);
           $url = $node->get('field_url')->value;
           $title = $node->getTitle();
+          $app_name[] = $node->get('field_application_name')->value;
           $hosts[$url] = $title;
         }
     
@@ -39,13 +41,16 @@ class RestoreForm extends FormBase {
             '#description' => 'Host URL to restore to',
             '#options' => $hosts,
             '#default_value' => '',
+            '#attributes' => [
+              'onchange' => 'updateRestoreOptions(this)'
+            ],
         ];
 
         $form['restore'] = array(
             '#type' => 'radios',
             '#title' => 'Select backup to restore',
             '#default_value' => '',
-            '#options' => $this->getRestoreOptions(),
+            '#options' => $this->getRestoreOptions($app_name[0]),
         );
 
         $form['response'] = [
@@ -74,8 +79,20 @@ class RestoreForm extends FormBase {
    * Create an options list based on the most recent backups in the S3 bucket.
    * @return array|NULL[]
    */
-  private function getRestoreOptions() {
+  private function getRestoreOptions($app_name) {
     $options = [];
+/*
+    $nids = \Drupal::entityQuery('node')
+        ->condition('type', 'drupal_site')
+        ->condition('status', NODE_PUBLISHED)
+        ->condition('field_url', $url, '=')
+        ->execute();
+
+    foreach ($nids as $nid) {
+      $node = \Drupal\node\Entity\Node::load($nid);
+      $app_name = $node->get('field_application_name')->value;
+    }
+    */
 
     // Get AWS credentials from config
     $conf = \Drupal::config('drmanage.settings');
@@ -97,6 +114,7 @@ class RestoreForm extends FormBase {
     try {
       $result = $s3->listObjectsV2([
         'Bucket' => $s3_host_bucket,
+        'Prefix' => $app_name,
       ]);
     } catch(S3Exception $e) {
       return $options;
@@ -106,7 +124,7 @@ class RestoreForm extends FormBase {
     $cnt = count($result['Contents']);
     $start = $cnt > 5 ? $cnt - 5 : 0;
     for ($n = $start; $n < $cnt; $n++) {
-      $options[$result['Contents'][$n]['Key']] = sprintf('%s (%0.1f MB)',
+      $options[$result['Contents'][$n]['Key']] = sprintf('%s (%0.2f MB)',
         $result['Contents'][$n]['Key'],
         $result['Contents'][$n]['Size'] / 1000000
       );

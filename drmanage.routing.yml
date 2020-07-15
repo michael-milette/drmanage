@@ -63,4 +63,12 @@ drmanage.request_restore:
   requirements:
     _permission: 'access administration pages'
 
+drmanage.update_restore_options:
+  path: '/admin/drmanage/update_restore_options'
+  defaults:
+    _title: 'Update restore options'
+    _controller: '\Drupal\drmanage\Controller\DrmanageController::update_restore_options'
+  requirements:
+    _permission: 'access administration pages'
+
 

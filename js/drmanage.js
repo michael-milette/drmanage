@@ -49,3 +49,24 @@ function submitRestoreForm()
 
   return false; // Prevent HTML form from submitting
 }
+
+function updateRestoreOptions(selector)
+{
+    console.log('selector changed to ' + selector.value);
+    let edit_restore = document.getElementById('edit-restore');
+    edit_restore.innerHTML = '';
+
+    $.ajax({
+      url: '/admin/drmanage/update_restore_options',
+      type: 'POST',
+      data: {
+        'host_url': selector.value,
+      },
+      dataType: 'json',
+      success: function(data) {
+        edit_restore.innerHTML = data.html;
+      }
+    });
+
+    return false; // Prevent HTML form from submitting
+}
