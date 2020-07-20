@@ -29,7 +29,7 @@ $nids = \Drupal::entityQuery('node')
 ->execute();
 
 // get current date time
-$curr = date('Y-m-d H:i:s');
+$curr = new DateTime(date('Y-m-d H:i:s'));
 
 foreach ($nids as $nid) {
     $node = \Drupal\node\Entity\Node::load($nid);

@@ -84,7 +84,7 @@ class DrmanageController {
     return new JsonResponse($json);
   }
 
-    /**
+  /**
    * Handle a restore request.
    * This function will contact the remote host and initiate a restore.
    * TODO - JSON response codes
@@ -145,60 +145,12 @@ class DrmanageController {
     return new JsonResponse($json);
   }
 
-  public function listContents() {
-
-    // Get AWS credentials from config
-    $conf = \Drupal::config('drmanage.settings');
-
-    $s3_access_key = $conf->get('s3_access_key');
-    $s3_secret_key = $conf->get('s3_secret_key');
-    $s3_bucket_location = $conf->get('s3_bucket_location');
-    $s3_host_bucket = $conf->get('s3_host_bucket');
-
-    putenv("AWS_ACCESS_KEY_ID=$s3_access_key");
-    putenv("AWS_SECRET_ACCESS_KEY=$s3_secret_key");
-
-    $s3 = new S3Client([
-      'version' => 'latest',
-      'region'  => $s3_bucket_location,
-    ]);
-
-    try {
-      // Request list of objects in s3 bucket
-      $result = $s3->listObjectsV2([
-        'Bucket' => $s3_host_bucket,
-      //'MaxKeys' => 10, // default 1000
-      ]);
-    } catch(S3Exception $e) {
-      // Print error message in /tmp/listcontents_error
-      if ($fp = fopen('/tmp/listcontents_error', 'a')) {
-        fwrite($fp, $e->getMessage());
-        fclose($fp);
-      }
-    }
-
-    // Format results in html table
-    $content = '<h3>Bucket Name: ' . $result['Name'] . '</h3>' .  '<h3>Objects Found: ' . $result['KeyCount'] . '</h3>';
-    $content .= '<form method="POST" action=???>';
-    $content .= '<table class="table">';
-    $content .= '<tr><th>Selection</th><th>File</th><th>Size (Bytes)</th><th>Last Modified</th>';
-    for ($n = 0; $n <sizeof($result['Contents']); $n++) {
-      $content .= '<tr>';
-      $content .= '<td><input type="checkbox" name="items[]" value="' . $result['Contents'][$n]['Key'] . '" /></td>';
-      $content .= '<td>' . $result['Contents'][$n]['Key'] . '</td>';
-      $content .= '<td>' . $result['Contents'][$n]['Size'] . '</td>';
-      $content .= '<td>' . $result['Contents'][$n]['LastModified'] . '</td>';
-      $content .= '<tr>';
-    }
-    $content .= '</table></form>';
-    $content .= '<button type="submit">Delete selected items</button>';
-
-    return [
-      '#theme' => 'listcontents',
-      '#content' => $content,
-    ];
-  }
-
+  /**
+   * Constructs HTML to update the radios element of the RestoreForm
+   * given the URL of the selected host.
+   * TODO - JSON response codes
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   */
   public function update_restore_options() {
     
     $url = $_POST['host_url'];

@@ -25,7 +25,6 @@ drmanage.s3_settings_form:
 drmanage.s3_bucket_contents:
   path: '/admin/drmanage/s3bucket'
   defaults:
-    # _controller: '\Drupal\drmanage\Controller\DrmanageController::listContents'
     _form: '\Drupal\drmanage\Form\S3ContentsForm'
     _title: 'S3 Bucket Contents'
   requirements:
