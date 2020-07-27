@@ -46,16 +46,12 @@ class DrmanageController {
       $json['messages'][] = "Unable to load node... exiting.";
       return new JsonResponse($json);
     }
-
-    $app_name = $node->get('field_application_name')->value;
       
     $postdata = [
-      'access_key' => $conf->get('s3_access_key'),
-      'secret_key' => $conf->get('s3_secret_key'),
-      'bucket_location' => $conf->get('s3_bucket_location'),  // e.g. ca-central-1
-      'host_base' => $conf->get('s3_host_base'),              // e.g. s3.amazonaws.com
-      'host_bucket' => $conf->get('s3_host_bucket'),          // DNS-style bucket name
-      'app_name' => $app_name,
+      'aws_access_key' => $conf->get('s3_access_key'),
+      'aws_secret_access_key' => $conf->get('s3_secret_key'),
+      'aws_s3_bucket' => $conf->get('s3_host_bucket'),      // DNS-style bucket name
+      'aws_s3_region' => $conf->get('s3_bucket_location'),  // e.g. ca-central-1
     ];
 
     // use key 'http' even if you send the request to https://...
@@ -68,7 +64,7 @@ class DrmanageController {
     ];
 
     $context  = stream_context_create($options);
-    $result = file_get_contents("$host_url/backup.php", false, $context);
+    $result = file_get_contents("$host_url/manage.php?operation=backup", false, $context);
 
     if ($result === FALSE) {
       $json['messages'][] = "Backup failed... exiting.";
@@ -111,11 +107,10 @@ class DrmanageController {
     }
 
     $postdata = [
-      'access_key' => $conf->get('s3_access_key'),
-      'secret_key' => $conf->get('s3_secret_key'),
-      'bucket_location' => $conf->get('s3_bucket_location'),  // e.g. ca-central-1
-      'host_base' => $conf->get('s3_host_base'),              // e.g. s3.amazonaws.com
-      'host_bucket' => $conf->get('s3_host_bucket'),          // DNS-style bucket name
+      'aws_access_key' => $conf->get('s3_access_key'),
+      'aws_secret_access_key' => $conf->get('s3_secret_key'),
+      'aws_s3_bucket' => $conf->get('s3_host_bucket'),      // DNS-style bucket name
+      'aws_s3_region' => $conf->get('s3_bucket_location'),  // e.g. ca-central-1
       'backup_file' => $backup_file,
     ];
 
@@ -129,7 +124,7 @@ class DrmanageController {
     ];
 
     $context  = stream_context_create($options);
-    $result = file_get_contents("$host_url/restore.php", false, $context);
+    $result = file_get_contents("$host_url/manage.php?operation=restore", false, $context);
 
     if ($result === FALSE) {
       $json['messages'][] = "Restore failed... exiting.";
