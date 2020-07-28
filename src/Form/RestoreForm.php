@@ -143,7 +143,7 @@ class RestoreForm extends FormBase {
 
         $filename = preg_replace($patterns, $replacements, $results['Contents'][$n]['Key']);
 
-        $label = sprintf('%s (%0.1f MB)',
+        $label = sprintf('%s (%0.2f MB)',
         $result['Contents'][$n]['Key'],
         $result['Contents'][$n]['Size'] / 1000000);
         
