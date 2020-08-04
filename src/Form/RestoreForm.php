@@ -120,6 +120,14 @@ class RestoreForm extends FormBase {
             return new JsonResponse($json);
         }
         $app_name = $node->get('field_application_name')->value;
+        
+        // disregard environment information in app_name
+        preg_match('/^[^-]*/', $app_name, $matches);
+        if ($app_name == 'localhost') {
+            $app_name = '';
+        } else {
+            $app_name = $matches[0];
+        }
 
         // Get bucket contents in app_name directory
         try {
@@ -132,9 +140,9 @@ class RestoreForm extends FormBase {
             return new JsonResponse($json);
         }
 
-        // Make an options list from the last 5 items
+        // Make an options list from the last 10 items
         $cnt = count($result['Contents']);
-        $start = $cnt > 5 ? $cnt - 5 : 0;
+        $start = $cnt > 10 ? $cnt - 10 : 0;
         for ($n = $start; $n < $cnt; $n++) {
 
         // Format the selector options in drupalized html
@@ -161,6 +169,14 @@ class RestoreForm extends FormBase {
     } else {
         $options = [];
 
+        // disregard environment information in app_name
+        preg_match('/^[^-]*/', $app_name, $matches);
+        if ($app_name == 'localhost') {
+            $app_name = '';
+        } else {
+            $app_name = $matches[0];
+        }
+
         // Get bucket contents in app_name directory
         try {
             $result = $s3->listObjectsV2([
@@ -171,9 +187,9 @@ class RestoreForm extends FormBase {
             return $options;
         }
 
-        // Make an options list from the last 5 items
+        // Make an options list from the last 10 items
         $cnt = count($result['Contents']);
-        $start = $cnt > 5 ? $cnt - 5 : 0;
+        $start = $cnt > 10 ? $cnt - 10 : 0;
         for ($n = $start; $n < $cnt; $n++) {
         $options[$result['Contents'][$n]['Key']] = sprintf('%s (%0.2f MB)',
             $result['Contents'][$n]['Key'],
