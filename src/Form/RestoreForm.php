@@ -82,7 +82,7 @@ class RestoreForm extends FormBase {
   /**
    * Update 'restore' element radio options given the selected host.
    * TODO - JSON response codes
-   * @return 5 most recent backup file options
+   * @return 10 most recent backup file options
    */
   public function getRestoreOptions($app_name = '', $onChange = TRUE) {
 
@@ -140,29 +140,33 @@ class RestoreForm extends FormBase {
             return new JsonResponse($json);
         }
 
-        // Make an options list from the last 10 items
-        $cnt = count($result['Contents']);
-        $start = $cnt > 10 ? $cnt - 10 : 0;
-        for ($n = $start; $n < $cnt; $n++) {
+        if (isset($result['Contents'])) {
+            // Make an options list from the last 10 items
+            $cnt = count($result['Contents']);
+            $start = $cnt > 10 ? $cnt - 10 : 0;
+            for ($n = $start; $n < $cnt; $n++) {
 
-        // Format the selector options in drupalized html
-        $patterns = array('/', '.tar.gz');
-        $replacements = array('', 'targz');
+                // Format the selector options in drupalized html
+                $patterns = array('~/~', '~.tar.gz~');
+                $replacements = array('', 'targz');
 
-        $filename = preg_replace($patterns, $replacements, $results['Contents'][$n]['Key']);
+                $filename = preg_replace($patterns, $replacements, $result['Contents'][$n]['Key']);
 
-        $label = sprintf('%s (%0.2f MB)',
-        $result['Contents'][$n]['Key'],
-        $result['Contents'][$n]['Size'] / 1000000);
-        
-        $html =  '<div class="js-form-item form-item js-form-type-radio form-type--radio form-type--boolean js-form-item-restore form-item--restore">';
-        $html .= '<input data-drupal-selector="edit-restore-' . $filename . '" ';
-        $html .= 'type="radio" id="edit-restore-' . $filename . '" name="restore" ';
-        $html .= 'value="' . $results['Contents'][$n]['Key'] . '"';
-        $html .= 'class="form-radio form-boolean form-boolean--type-radio" tabindex="-1">';
-        $html .= '<label for="edit-restore-' . $filename . '" ';
-        $html .= 'class="form-item_label option">' . $label . '</label></div>';
-        $json['html'][] = $html;
+                $label = sprintf('%s (%0.2f MB)',
+                $result['Contents'][$n]['Key'],
+                $result['Contents'][$n]['Size'] / 1000000);
+                
+                $html =  '<div class="js-form-item form-item js-form-type-radio form-type--radio form-type--boolean js-form-item-restore form-item--restore">';
+                $html .= '<input data-drupal-selector="edit-restore-' . $filename . '" ';
+                $html .= 'type="radio" id="edit-restore-' . $filename . '" name="restore" ';
+                $html .= 'value="' . $result['Contents'][$n]['Key'] . '"';
+                $html .= 'class="form-radio form-boolean form-boolean--type-radio" tabindex="-1">';
+                $html .= '<label for="edit-restore-' . $filename . '" ';
+                $html .= 'class="form-item_label option">' . $label . '</label></div>';
+                $json['html'][] = $html;
+            }
+        } else {
+            $json['html'][] = '<div><p>No backup files found.</p></div>';
         }
         return new JsonResponse($json);
 
@@ -186,16 +190,20 @@ class RestoreForm extends FormBase {
         } catch(S3Exception $e) {
             return $options;
         }
-
-        // Make an options list from the last 10 items
-        $cnt = count($result['Contents']);
-        $start = $cnt > 10 ? $cnt - 10 : 0;
-        for ($n = $start; $n < $cnt; $n++) {
-        $options[$result['Contents'][$n]['Key']] = sprintf('%s (%0.2f MB)',
-            $result['Contents'][$n]['Key'],
-            $result['Contents'][$n]['Size'] / 1000000
-        );
-        }  
+        
+        if (isset($result['Contents'])) {
+            // Make an options list from the last 10 items
+            $cnt = count($result['Contents']);
+            $start = $cnt > 10 ? $cnt - 10 : 0;
+            for ($n = $start; $n < $cnt; $n++) {
+                $options[$result['Contents'][$n]['Key']] = sprintf('%s (%0.2f MB)',
+                    $result['Contents'][$n]['Key'],
+                    $result['Contents'][$n]['Size'] / 1000000
+                );
+            }  
+        } else {
+            $options[] = 'No backup files found.';
+        }
         return $options;
     } 
   }
