@@ -48,7 +48,7 @@ class DrmanageController {
     }
       
     $postdata = [
-      'aws_access_key' => $conf->get('s3_access_key'),
+      'aws_access_key_id' => $conf->get('s3_access_key'),
       'aws_secret_access_key' => $conf->get('s3_secret_key'),
       'aws_s3_bucket' => $conf->get('s3_host_bucket'),      // DNS-style bucket name
       'aws_s3_region' => $conf->get('s3_bucket_location'),  // e.g. ca-central-1
@@ -107,7 +107,7 @@ class DrmanageController {
     }
 
     $postdata = [
-      'aws_access_key' => $conf->get('s3_access_key'),
+      'aws_access_key_id' => $conf->get('s3_access_key'),
       'aws_secret_access_key' => $conf->get('s3_secret_key'),
       'aws_s3_bucket' => $conf->get('s3_host_bucket'),      // DNS-style bucket name
       'aws_s3_region' => $conf->get('s3_bucket_location'),  // e.g. ca-central-1
