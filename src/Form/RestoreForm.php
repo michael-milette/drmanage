@@ -19,13 +19,17 @@ class RestoreForm extends FormBase {
     public function buildForm(array $form, FormStateInterface $form_state) {
 
         $hosts = [];
+        $backup_type = array(
+            'daily' => 'Daily', 
+            'weekly'=> 'Weekly',
+            'monthly' => 'Monthly'
+        );
 
         $nids = \Drupal::entityQuery('node')
         ->condition('type', 'drupal_site')
         ->condition('status', NODE_PUBLISHED)
         ->execute();
 
-      
         foreach ($nids as $nid) {
           $node = \Drupal\node\Entity\Node::load($nid);
           $url = $node->get('field_url')->value;
@@ -44,16 +48,23 @@ class RestoreForm extends FormBase {
             '#title' => 'Host',
             '#description' => 'Host URL to restore to',
             '#options' => $hosts,
-            '#default_value' => 'Select a host.',
             '#attributes' => [
-              'onchange' => 'updateRestoreOptions(this)'
+              'onchange' => 'updateRestoreOptions()'
+            ],
+        ];
+
+        $form['backup_type'] = [
+            '#type' => 'select',
+            '#title' => 'Type of backup file',
+            '#options' => $backup_type,
+            '#attributes' => [
+                'onchange' => 'updateRestoreOptions()'
             ],
         ];
 
         $form['restore'] = array(
             '#type' => 'radios',
-            '#title' => 'Select backup to restore',
-            '#default_value' => '',
+            '#title' => 'Select backup file to restore',
             '#options' => $this->getRestoreOptions($default_appname, FALSE),
         );
 
@@ -75,7 +86,6 @@ class RestoreForm extends FormBase {
         ];
 
         $form_state->disableRedirect(true);
-
         return $form;
     }
 
@@ -85,10 +95,9 @@ class RestoreForm extends FormBase {
    * @return 10 most recent backup file options
    */
   public function getRestoreOptions($app_name = '', $onChange = TRUE) {
-
+    
     // Get AWS credentials from config
     $conf = \Drupal::config('drmanage.settings');
-
     $s3_access_key = $conf->get('s3_access_key');
     $s3_secret_key = $conf->get('s3_secret_key');
     $s3_bucket_location = $conf->get('s3_bucket_location');
@@ -99,13 +108,15 @@ class RestoreForm extends FormBase {
 
     // Initialize S3 client
     $s3 = new S3Client([
-      'version' => 'latest',
-      'region'  => $s3_bucket_location,
+    'version' => 'latest',
+    'region'  => $s3_bucket_location,
     ]);
-    
+
     if ($onChange) {
         $url = $_POST['host_url'];
+        $backup_type = $_POST['backup_type'];
 
+        // Load Drupal node containing the selected host URL
         $nids = \Drupal::entityQuery('node')
             ->condition('type', 'drupal_site')
             ->condition('status', NODE_PUBLISHED)
@@ -119,21 +130,15 @@ class RestoreForm extends FormBase {
             $json['html'][] = "<div><p>Unable to load node... exiting.</p></div>";
             return new JsonResponse($json);
         }
-        $app_name = $node->get('field_application_name')->value;
-        
-        // disregard environment information in app_name
-        preg_match('/^[^-]*/', $app_name, $matches);
-        if ($app_name == 'localhost') {
-            $app_name = '';
-        } else {
-            $app_name = $matches[0];
-        }
+
+        // Disregard environment information in app_name
+        $app_name = $this->generalizeAppName($node->get('field_application_name')->value);
 
         // Get bucket contents in app_name directory
         try {
             $result = $s3->listObjectsV2([
               'Bucket' => $s3_host_bucket,
-              'Prefix' => $app_name,
+              'Prefix' => $backup_type . '/' . $app_name,
             ]);
         } catch(S3Exception $e) {
             $json['html'][] = "<div><p>listObjectsV2 error... exiting.</p></div>";
@@ -173,24 +178,19 @@ class RestoreForm extends FormBase {
     } else {
         $options = [];
 
-        // disregard environment information in app_name
-        preg_match('/^[^-]*/', $app_name, $matches);
-        if ($app_name == 'localhost') {
-            $app_name = '';
-        } else {
-            $app_name = $matches[0];
-        }
+        // Disregard environment information in app_name
+        $app_name = $this->generalizeAppName($app_name);
 
         // Get bucket contents in app_name directory
         try {
             $result = $s3->listObjectsV2([
             'Bucket' => $s3_host_bucket,
-            'Prefix' => $app_name,
+            'Prefix' => 'daily/' . $app_name,
             ]);
         } catch(S3Exception $e) {
             return $options;
-        }
-        
+        } 
+
         if (isset($result['Contents'])) {
             // Make an options list from the last 10 items
             $cnt = count($result['Contents']);
@@ -206,6 +206,21 @@ class RestoreForm extends FormBase {
         }
         return $options;
     } 
+  }
+
+  /** Helper function to remove environment information (dev, qa, test, etc.)
+   *  from application name. The current implementation lists the restore options
+   *  for all application environments.
+   * 
+   *  @return string
+   */
+  private function generalizeAppName($app_name) {
+    if ($app_name == 'localhost') {
+        return '';
+    } else {
+        preg_match('/^[^-]*/', $app_name, $matches);
+        return $matches[0];
+    }
   }
 
   public function validateForm(array &$form, FormStateInterface $form_state) {

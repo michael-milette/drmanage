@@ -50,11 +50,14 @@ function submitRestoreForm()
   return false; // Prevent HTML form from submitting
 }
 
-function updateRestoreOptions(selector)
+function updateRestoreOptions()
 {
-    console.log('selector changed to ' + selector.value);
-    //let edit_restore = document.getElementById('edit-restore');
-    let edit_restore = document.querySelector('#drmanage-restoreform #edit-restore');
+    let selector = document.getElementById('edit-host-url');
+    let edit_restore = document.getElementById('edit-restore');
+    let backup_type = document.getElementById('edit-backup-type');
+
+    console.log('Host URL: ' + selector.value);
+    console.log('Backup Type: ' + backup_type.value);
     edit_restore.innerHTML = '';
 
     $.ajax({
@@ -62,6 +65,7 @@ function updateRestoreOptions(selector)
       type: 'POST',
       data: {
         'host_url': selector.value,
+        'backup_type': backup_type.value,
       },
       dataType: 'json',
       success: function(data) {
