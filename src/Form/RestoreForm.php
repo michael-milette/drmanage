@@ -108,8 +108,8 @@ class RestoreForm extends FormBase {
 
     // Initialize S3 client
     $s3 = new S3Client([
-    'version' => 'latest',
-    'region'  => $s3_bucket_location,
+        'version' => 'latest',
+        'region'  => $s3_bucket_location,
     ]);
 
     if ($onChange) {
@@ -137,8 +137,8 @@ class RestoreForm extends FormBase {
         // Get bucket contents in app_name directory
         try {
             $result = $s3->listObjectsV2([
-              'Bucket' => $s3_host_bucket,
-              'Prefix' => $backup_type . '/' . $app_name,
+                'Bucket' => $s3_host_bucket,
+                'Prefix' => $backup_type . '/' . $app_name,
             ]);
         } catch(S3Exception $e) {
             $json['html'][] = "<div><p>listObjectsV2 error... exiting.</p></div>";
@@ -184,8 +184,8 @@ class RestoreForm extends FormBase {
         // Get bucket contents in app_name directory
         try {
             $result = $s3->listObjectsV2([
-            'Bucket' => $s3_host_bucket,
-            'Prefix' => 'daily/' . $app_name,
+                'Bucket' => $s3_host_bucket,
+                'Prefix' => 'daily/' . $app_name,
             ]);
         } catch(S3Exception $e) {
             return $options;
