@@ -15,7 +15,7 @@ class S3ContentsForm extends FormBase {
 
     public function buildForm(array $form, FormStateInterface $form_state) {
 
-        $actions = array('Delete content');
+        $actions = array('Delete content', 'Download content');
 
         $header = [
             'file' => t('File'),
@@ -80,17 +80,36 @@ class S3ContentsForm extends FormBase {
                     try {
                         $deleteItem = $s3->deleteObject([
                             'Bucket' => $s3_host_bucket,
-                            'Key' => $result,
+                            'Key'    => $result,
                         ]);
                     } catch (S3Exception $e) {
                         if ($fp = fopen('/tmp/s3deleteObject', 'a')) {
-                            fwrite($fp, $deleteItem);
+                            fwrite($fp, $e);
                             fclose($fp);
                         }
-        
                     }
                 }
                 drupal_set_message(t('Files deleted successfully!'));
+                break;
+            case '1':
+                // Download files
+                foreach ($results as $result) {
+                    $filename = preg_replace('~^(.*?)\/~', '', $result);
+                    $path = '/opt/app-root/src/' . $filename;
+                    try {
+                        $downloadFile = $s3->getObject([
+                            'Bucket' => $s3_host_bucket,
+                            'Key'    => $result,
+                            'SaveAs' => $path
+                        ]);
+                    } catch (S3Exception $e) {
+                        if ($fp = fopen('/tmp/s3downloadFile', 'a')) {
+                            fwrite($fp, $e);
+                            fclose($fp);
+                        }
+                    }
+                }
+                drupal_set_message(t('Files downloaded to document root.'));
                 break;
         }  
     }
