@@ -1,5 +1,26 @@
 <h1>Site Info</h1>
 
-<p>The site name is: {{ siteName }}</p>
+<p>The application name is: {{ appName }}</p>
 
 <p>The host url is: {{ hostUrl }}</p>
+
+<h2>Space</h2>
+
+<table class="table">
+  <tr>
+    <th>Volume</th>
+    <th>Total Space</th>
+    <th>Free Space</th>
+    <th>Used Space</th>
+    <th>Used %</th>
+  </tr>
+  {% for vol in json.data %}
+    <tr>
+      <td>{{ vol.volume }}</td>
+      <td>{{ vol.totalspace }}</td>
+      <td>{{ vol.freespace }}</td>
+      <td>{{ vol.usedspace }}</td>
+      <td>{{ vol.usedpercentage }}</td>
+    </tr>
+  {% endfor %}
+</table>

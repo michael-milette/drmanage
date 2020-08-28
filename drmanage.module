@@ -15,6 +15,7 @@ function drmanage_theme($existing, $type, $theme, $path) {
       'variables' => [
         'appName' => '',
         'hostUrl' => '',
+        'json' => [],
       ]
     ],
     // add more templates as needed

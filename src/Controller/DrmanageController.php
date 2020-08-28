@@ -153,13 +153,31 @@ class DrmanageController {
     if (!empty($nids)) {
       $nid = array_shift($nids);
       $node = \Drupal\node\Entity\Node::load($nid);
-      $hostUrl = $node->get('field_url')->value;
+      $host_url = $node->get('field_url')->value;
     }
+
+    $json = [
+      'status' => "success",
+      'data' => [
+        [
+          'volume' => "/opt/app-root/src/data",
+          'totalspace' => "1023303680",
+          'freespace' => "1000169472",
+          'usedspace' => "23134208",
+          'usedpercentage' => "2.26%",
+        ]
+      ]
+    ];
+
+    $host_url = preg_replace('/^http:/', 'https:', $host_url);
+    $result = file_get_contents("$host_url/manage.php?operation=space");
+    $json = json_decode($result);
 
     return [
       '#theme' => 'site-info',
       '#appName' => $appName,
-      '#hostUrl' => $hostUrl,
+      '#hostUrl' => $host_url,
+      '#json' => $json,
     ];
   }
 }
