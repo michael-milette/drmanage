@@ -71,4 +71,11 @@ drmanage.update_restore_options:
   requirements:
     _permission: 'access administration pages'
 
+drmanage.site_status:
+  path: '/admin/drmanage/site_status/{appName}'
+  defaults:
+    _title: 'Site Status'
+    _controller: '\Drupal\drmanage\Controller\DrmanageController::site_status'
+  requirements:
+    _permission: 'access administration pages'
 

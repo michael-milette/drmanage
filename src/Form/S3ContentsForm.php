@@ -48,20 +48,20 @@ class S3ContentsForm extends FormBase {
 
     public function validateForm(array &$form, FormStateInterface $form_state) {
     }
-  
+
     public function submitForm(array &$form, FormStateInterface $form_state){
 
         // Get AWS credentials from config
         $conf = \Drupal::config('drmanage.settings');
-    
+
         $s3_access_key = $conf->get('s3_access_key');
         $s3_secret_key = $conf->get('s3_secret_key');
         $s3_bucket_location = $conf->get('s3_bucket_location');
         $s3_host_bucket = $conf->get('s3_host_bucket');
-    
+
         putenv("AWS_ACCESS_KEY_ID=$s3_access_key");
         putenv("AWS_SECRET_ACCESS_KEY=$s3_secret_key");
-    
+
         $s3 = new S3Client([
           'version' => 'latest',
           'region'  => $s3_bucket_location,
@@ -71,7 +71,7 @@ class S3ContentsForm extends FormBase {
         $results = [];
         $results = array_filter($form_state->getValue('s3contents'));
         $action = $form_state->getValue('action');
-        
+
         switch ($action){
 
             case '0':
@@ -109,9 +109,9 @@ class S3ContentsForm extends FormBase {
                         }
                     }
                 }
-                drupal_set_message(t('Files downloaded to document root.'));
+                drupal_set_message(t('Files downloaded to app-root/src/.'));
                 break;
-        }  
+        }
     }
 
     private function getS3Contents() {
@@ -119,20 +119,20 @@ class S3ContentsForm extends FormBase {
 
         // Get AWS credentials from config
         $conf = \Drupal::config('drmanage.settings');
-    
+
         $s3_access_key = $conf->get('s3_access_key');
         $s3_secret_key = $conf->get('s3_secret_key');
         $s3_bucket_location = $conf->get('s3_bucket_location');
         $s3_host_bucket = $conf->get('s3_host_bucket');
-    
+
         putenv("AWS_ACCESS_KEY_ID=$s3_access_key");
         putenv("AWS_SECRET_ACCESS_KEY=$s3_secret_key");
-    
+
         $s3 = new S3Client([
           'version' => 'latest',
           'region'  => $s3_bucket_location,
         ]);
-    
+
         // Get bucket contents
         try {
           $result = $s3->listObjectsV2([

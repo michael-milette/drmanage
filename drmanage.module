@@ -9,7 +9,12 @@ function drmanage_theme($existing, $type, $theme, $path) {
     'dashboard' => [
       'variables' => [
         'path' => $path . '/templates',
-        'something' => 'This is something.',
+      ]
+    ],
+    'site-info' => [
+      'variables' => [
+        'appName' => '',
+        'hostUrl' => '',
       ]
     ],
     // add more templates as needed

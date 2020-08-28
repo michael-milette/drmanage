@@ -46,7 +46,7 @@ class DrmanageController {
       $json['messages'][] = "Unable to load node... exiting.";
       return new JsonResponse($json);
     }
-      
+
     $postdata = [
       'aws_access_key_id' => $conf->get('s3_access_key'),
       'aws_secret_access_key' => $conf->get('s3_secret_key'),
@@ -141,4 +141,25 @@ class DrmanageController {
     return new JsonResponse($json);
   }
 
+  public function site_status(string $appName)
+  {
+    $nids = \Drupal::entityQuery('node')
+    ->condition('type', 'drupal_site')
+    ->condition('field_application_name', $appName)
+    ->execute();
+
+    $hostUrl = '';
+
+    if (!empty($nids)) {
+      $nid = array_shift($nids);
+      $node = \Drupal\node\Entity\Node::load($nid);
+      $hostUrl = $node->get('field_url')->value;
+    }
+
+    return [
+      '#theme' => 'site-info',
+      '#appName' => $appName,
+      '#hostUrl' => $hostUrl,
+    ];
+  }
 }
