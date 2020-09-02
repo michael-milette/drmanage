@@ -18,6 +18,9 @@ function submitBackupForm()
         response.append(msg + "\n");
       }
       response.append("\nBackup is complete.\n");
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) { 
+        alert("Status: " + textStatus); alert("Error: " + errorThrown); 
     }
   });
 

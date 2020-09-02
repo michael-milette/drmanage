@@ -64,8 +64,17 @@ class DrmanageController {
       ]
     ];
 
+    $tmStart = date('H:i:s');
     $context  = stream_context_create($options);
-    $result = file_get_contents("$host_url/manage.php?operation=backup", false, $context);
+    $result = file_get_contents("$host_url/manage.php?operation=backup&verbose=true", false, $context);
+    $tmEnd = date('H:i:s');
+
+    if ($fp = fopen("/tmp/actual", 'w')) {
+      fwrite($fp, "Start: $tmStart\n");
+      fwrite($fp, "$result\n");
+      fwrite($fp, "End: $tmEnd\n");
+      fclose($fp);
+    }
 
     if ($result === FALSE) {
       $json['messages'][] = "Backup failed... exiting.";
