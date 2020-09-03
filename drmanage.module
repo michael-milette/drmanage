@@ -65,3 +65,10 @@ function drmanage_webform_submission_insert(WebformSubmission $webform) {
     drupal_set_message('Success! Maybe. '. print_r($result, true));
   }
 }
+
+function drmanage_cron() {
+  if ($fp = fopen('/tmp/timeis', 'w')) {
+    fwrite($fp, "Time is " . date('H:i:s') . "\n");
+    fclose($fp);
+  }
+}
