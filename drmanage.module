@@ -77,11 +77,13 @@ function drmanage_cron() {
 //       }
 //     }
 //   }
-  if ($timeNow == '21:10') {
+  if ($timeNow == '21:20') {
     $sites = DrupalSite::all();
     $fp = fopen('/tmp/sites', 'w');
     foreach ($sites as $site) {
-      fwrite($fp, date() . " backing up " . $site->get_app_name() . "\n");
+      $app_name = $site->get_app_name();
+      if ($app_name == 'localhost') continue;
+      fwrite($fp, date() . " backing up $app_name\n");
       fflush($fp);
       if ($site->backup()) {
         $site->update_event_time('backup');
