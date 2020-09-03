@@ -3,6 +3,7 @@
 use Drupal\webform\Entity\WebformSubmission;
 use Drupal\webform\WebformSubmissionForm;
 use Drupal\drmanage\Controller\AwsformController;
+use Drupal\drmanage\DrupalSite;
 
 function drmanage_theme($existing, $type, $theme, $path) {
   return [
@@ -67,8 +68,13 @@ function drmanage_webform_submission_insert(WebformSubmission $webform) {
 }
 
 function drmanage_cron() {
-  if ($fp = fopen('/tmp/timeis', 'w')) {
-    fwrite($fp, "Time is " . date('H:i:s') . "\n");
-    fclose($fp);
+  $timeNow = date('H:i');
+  if ($timeNow == '20:00') { // 4:00 PM EDT
+    $site = new DrupalSite();
+    if ($site->find(['app_name' => 'awsform-dev'])) {
+      if ($site->backup()) {
+        $site->update_event_time('backup');
+      }
+    }
   }
 }
