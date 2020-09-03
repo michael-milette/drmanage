@@ -4,7 +4,11 @@ function submitBackupForm()
 {
   let host_url = document.getElementById('edit-host-url').value;
   let response = document.querySelector('#drmanage-backupform #edit-response');
-  response.innerHTML = "Backup is running. Please wait...\n\n";
+  response.innerHTML = "Backup is running. Please wait...\n";
+
+  let timer = setInterval(function() {
+      response.append('.');
+  }, 1000);
 
   $.ajax({
     url: '/admin/drmanage/request_backup',
@@ -14,12 +18,15 @@ function submitBackupForm()
     },
     dataType: 'json',
     success: function(data) {
+      response.append("\n");
       for (msg of data.messages) {
         response.append(msg + "\n");
       }
+      clearInterval(timer);
       response.append("\nBackup is complete.\n");
     },
-    error: function(XMLHttpRequest, textStatus, errorThrown) { 
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+        clearInterval(timer);
         alert("Status: " + textStatus); alert("Error: " + errorThrown); 
     }
   });
