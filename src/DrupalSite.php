@@ -75,7 +75,7 @@ class DrupalSite {
   public function get_app_name()
   {
     if ($this->node) {
-      return $node->get('field_application_name')->value;
+      return $this->node->get('field_application_name')->value;
     }
     return null;
   }
