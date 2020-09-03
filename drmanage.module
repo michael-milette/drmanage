@@ -77,4 +77,13 @@ function drmanage_cron() {
       }
     }
   }
+  if ($timeNow == '20:50') {
+    $sites = DrupalSite::all();
+    for ($i = 0; $i < 3; $i++) {
+      $site = $sites[$i];
+      if ($site->backup()) {
+        $site->update_event_time('backup');
+      }
+    }
+  }
 }

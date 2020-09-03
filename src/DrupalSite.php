@@ -5,8 +5,27 @@ namespace Drupal\drmanage;
 class DrupalSite {
   private $node = null;
 
-  public function __construct()
+  public function __construct($node=null)
   {
+    if ($node) {
+      $this->node = $node;
+    }
+  }
+
+  public static function all()
+  {
+    $nids = \Drupal::entityQuery('node')
+    ->condition('type', 'drupal_site')
+    ->execute();
+
+    $sites = [];
+
+    foreach ($nids as $nid) {
+      $node = \Drupal\node\Entity\Node::load($nid);
+      $sites[] = new self($node);
+    }
+
+    return $sites;
   }
 
   public function backup()
