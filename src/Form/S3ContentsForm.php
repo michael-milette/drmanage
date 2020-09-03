@@ -42,6 +42,7 @@ class S3ContentsForm extends FormBase {
         $form['submit'] = [
             '#type' => 'submit',
             '#value' => 'Apply to selected items',
+
         ];
 
         return $form;
@@ -71,8 +72,14 @@ class S3ContentsForm extends FormBase {
         // Get selected values
         $results = [];
         $results = array_filter($form_state->getValue('s3contents'));
-        $action = $form_state->getValue('action');
 
+        // Check that at least one file is selected
+        if (count($results) < 1) {
+            drupal_set_message('No content selected.', $type = 'error');
+            return;
+        }
+        
+        $action = $form_state->getValue('action');
         switch ($action){
 
             case '0':
@@ -93,8 +100,13 @@ class S3ContentsForm extends FormBase {
                 drupal_set_message(t('Files deleted successfully!'));
                 break;
             case '1':
-                // Download file
+                // Ensure only one file is selected
                 // TODO - download multiple files
+                if (count($results) > 1) {
+                    drupal_set_message('Select only 1 file to download at a time.', $type = 'error');
+                    break;
+                }
+                // Download file
                 foreach ($results as $result) {
                     $filename = preg_replace('~^(.*?)\/~', '', $result);
                     $path = $_ENV['HOME'] . '/' . $filename;
@@ -124,7 +136,6 @@ class S3ContentsForm extends FormBase {
                     // Delete backup file from app-root
                     exec("rm $path");
                 }
-                drupal_set_message(t('File downloaded from S3.'));
                 break;
         }
     }
