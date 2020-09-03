@@ -1,4 +1,10 @@
 <?php
+/**
+ * This program is an agent which handles a remote-management request that is expected to take @author duncan
+ * long time (more than 30 seconds). It is designed to operate through a pipe. It reads the JSON request from STDIN
+ * and POSTs a request to the remote server, then waits for a response. The remote server will keep the connection
+ * open by sending newlines regularly. When the operation is complete, the results are returned back to the caller.
+ */
 
 $input = '';
 
@@ -18,6 +24,4 @@ $options = [
 ];
 
 $context  = stream_context_create($options);
-$result = file_get_contents($json->url, false, $context);
-
-echo $result;
+echo trim(file_get_contents($json->url, false, $context));

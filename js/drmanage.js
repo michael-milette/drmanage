@@ -7,7 +7,7 @@ function submitBackupForm()
   response.innerHTML = "Backup is running. Please wait...\n";
 
   let timer = setInterval(function() {
-      response.append('.');
+    response.append('.');
   }, 1000);
 
   $.ajax({
@@ -18,16 +18,16 @@ function submitBackupForm()
     },
     dataType: 'json',
     success: function(data) {
+      clearInterval(timer);
       response.append("\n");
       for (msg of data.messages) {
         response.append(msg + "\n");
       }
-      clearInterval(timer);
       response.append("\nBackup is complete.\n");
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-        clearInterval(timer);
-        alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+      clearInterval(timer);
+      alert("Status: " + textStatus); alert("Error: " + errorThrown); 
     }
   });
 
@@ -39,7 +39,11 @@ function submitRestoreForm()
   let host_url = document.getElementById('edit-host-url').value;
   let response = document.querySelector('#drmanage-restoreform #edit-response');
   let backup_file = document.querySelector('#edit-restore input[name="restore"]:checked').value;
-  response.innerHTML = "Restore is in progress. Please wait...\n\n";
+  response.innerHTML = "Restore is in progress. Please wait...\n";
+
+  let timer = setInterval(function() {
+    response.append('.');
+  }, 1000);
 
   $.ajax({
     url: '/admin/drmanage/request_restore',
@@ -50,10 +54,16 @@ function submitRestoreForm()
     },
     dataType: 'json',
     success: function(data) {
+      clearInterval(timer);
+      response.append("\n");
       for (msg of data.messages) {
         response.append(msg + "\n");
       }
       response.append("\nRestore is complete.\n");
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      clearInterval(timer);
+      alert("Status: " + textStatus); alert("Error: " + errorThrown); 
     }
   });
 
