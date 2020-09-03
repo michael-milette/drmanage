@@ -93,11 +93,11 @@ class S3ContentsForm extends FormBase {
                 drupal_set_message(t('Files deleted successfully!'));
                 break;
             case '1':
-                // Download files
+                // Download file
                 // TODO - download multiple files
                 foreach ($results as $result) {
                     $filename = preg_replace('~^(.*?)\/~', '', $result);
-                    $path = '/opt/app-root/src/' . $filename;
+                    $path = $_ENV['HOME'] . '/' . $filename;
                     try {
                         $downloadFile = $s3->getObject([
                             'Bucket' => $s3_host_bucket,
@@ -110,16 +110,19 @@ class S3ContentsForm extends FormBase {
                             fclose($fp);
                         }
                     }
-                    // open the file in a binary mode
+                    // Open the file in binary mode
                     if ($fp = fopen($path, 'rb')) {
-                        // set headers
+                        // Set headers
                         header("Content-Type: application/gzip");
                         header("Content-Length: " . filesize($path));
                         header("Content-Disposition: attachment; filename=\"$filename\"");
-                        // header("Connection: close");
-                        // download file to browser
+                        header("Connection: close");
+                        // Download file to browser
                         fpassthru($fp);
                     }
+
+                    // Delete backup file from app-root
+                    exec("rm $path");
                 }
                 drupal_set_message(t('File downloaded from S3.'));
                 break;
