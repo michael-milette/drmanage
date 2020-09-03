@@ -4,6 +4,7 @@ namespace Drupal\drmanage\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
 
@@ -93,6 +94,7 @@ class S3ContentsForm extends FormBase {
                 break;
             case '1':
                 // Download files
+                // TODO - download multiple files
                 foreach ($results as $result) {
                     $filename = preg_replace('~^(.*?)\/~', '', $result);
                     $path = '/opt/app-root/src/' . $filename;
@@ -108,8 +110,18 @@ class S3ContentsForm extends FormBase {
                             fclose($fp);
                         }
                     }
+                    // open the file in a binary mode
+                    if ($fp = fopen($path, 'rb')) {
+                        // set headers
+                        header("Content-Type: application/gzip");
+                        header("Content-Length: " . filesize($path));
+                        header("Content-Disposition: attachment; filename=\"$filename\"");
+                        // header("Connection: close");
+                        // download file to browser
+                        fpassthru($fp);
+                    }
                 }
-                drupal_set_message(t('Files downloaded to app-root/src/.'));
+                drupal_set_message(t('File downloaded from S3.'));
                 break;
         }
     }
