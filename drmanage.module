@@ -77,7 +77,7 @@ function drmanage_cron() {
 //       }
 //     }
 //   }
-  if ($timeNow == '21:20') {
+  if ($timeNow == '07:00') {
     $sites = DrupalSite::all();
     $fp = fopen('/tmp/sites', 'w');
     foreach ($sites as $site) {
