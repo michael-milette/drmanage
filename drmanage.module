@@ -69,26 +69,14 @@ function drmanage_webform_submission_insert(WebformSubmission $webform) {
 
 function drmanage_cron() {
   $timeNow = date('H:i');
-//   if ($timeNow == '20:00') { // 4:00 PM EDT
-//     $site = new DrupalSite();
-//     if ($site->find(['app_name' => 'awsform-dev'])) {
-//       if ($site->backup()) {
-//         $site->update_event_time('backup');
-//       }
-//     }
-//   }
-  if ($timeNow == '07:00') {
+  if ($timeNow == '07:00') { // 3:00 AM EDT
     $sites = DrupalSite::all();
-    $fp = fopen('/tmp/sites', 'w');
     foreach ($sites as $site) {
       $app_name = $site->get_app_name();
       if ($app_name == 'localhost') continue;
-      fwrite($fp, date('H:i:s') . " backing up $app_name\n");
-      fflush($fp);
       if ($site->backup()) {
         $site->update_event_time('backup');
       }
     }
-    fclose($fp);
   }
 }
