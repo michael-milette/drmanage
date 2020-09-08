@@ -74,7 +74,8 @@ function drmanage_cron() {
     foreach ($sites as $site) {
       $app_name = $site->get_app_name();
       if ($app_name == 'localhost') continue;
-      if ($site->backup()) {
+      $result = $site->backup();
+      if ($result['bytes' > 0]) {
         $site->update_event_time('backup');
       }
     }
