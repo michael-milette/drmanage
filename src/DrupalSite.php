@@ -32,20 +32,34 @@ class DrupalSite {
   {
     if ($this->node) {
       if ($result = $this->run_agent($this->get_host_url() . "/manage.php?operation=backup&verbose=true")) {
-        return json_decode($result);
+        $json = json_decode($result['data']);
+        return [
+          'bytes' => $result['bytes'],
+          'json' => $json,
+        ];
       }
     }
-    return false;
+    return [
+      'bytes' => 0,
+      'json' => [],
+    ];
   }
 
   public function restore()
   {
     if ($this->node) {
       if ($result = $this->run_agent($this->get_host_url() . "/manage.php?operation=restore&verbose=true")) {
-        return json_decode($result);
+        $json = json_decode($result['data']);
+        return [
+          'bytes' => $result['bytes'],
+          'json' => $json,
+        ];
       }
     }
-    return false;
+    return [
+      'bytes' => 0,
+      'json' => [],
+    ];
   }
 
   public function find($select)
@@ -189,6 +203,9 @@ class DrupalSite {
     fclose($pipes[1]);
     fclose($pipes[2]);
 
-    return $result;
+    return [
+      'bytes' => strlen($result),
+      'data' => $result
+    ];
   }
 }

@@ -39,17 +39,22 @@ class DrmanageController {
     $site = new DrupalSite();
 
     if (!$site->find(['host_url' => $host_url])) {
-      return new JsonResponse(['status' => 'error', 'errmsg' => 'Cannot open site record.']);
+      return new JsonResponse(['status' => 'error', 'messages' => ['Cannot open site record.']]);
     }
 
     // Send the backup request
-    if (!$json = $site->backup()) {
-      return new JsonResponse(['status' => 'error', 'errmsg' => 'Backup failed.']);
+    $result = $site->backup();
+    $result = $site->restore();
+    if ($result['bytes'] == 0) {
+      return new JsonResponse(['status' => 'error', 'messages' => ['Backup failed. Connection lost.']]);
+    }
+    if (empty($result['json'])) {
+      return new JsonResponse(['status' => 'error', 'messages' => ['JSON decode error.']]);
     }
 
     $site->update_event_time('backup');
 
-    return new JsonResponse($json);
+    return new JsonResponse($result['json']);
   }
 
   /**
@@ -65,17 +70,21 @@ class DrmanageController {
     $site = new DrupalSite();
 
     if (!$site->find(['host_url' => $host_url])) {
-      return new JsonResponse(['status' => 'error', 'errmsg' => 'Cannot open site record.']);
+      return new JsonResponse(['status' => 'error', 'messages' => ['Cannot open site record.']]);
     }
 
     // Send the restore request
-    if (!$json = $site->restore()) {
-      return new JsonResponse(['status' => 'error', 'errmsg' => 'Restore failed.']);
+    $result = $site->restore();
+    if ($result['bytes'] == 0) {
+      return new JsonResponse(['status' => 'error', 'messages' => ['Restore failed. Connection lost.']]);
+    }
+    if (empty($result['json'])) {
+      return new JsonResponse(['status' => 'error', 'messages' => ['JSON decode error.']]);
     }
 
     $site->update_event_time('restore');
 
-    return new JsonResponse($json);
+    return new JsonResponse($result['json']);
   }
 
   public function site_status(string $appName)
