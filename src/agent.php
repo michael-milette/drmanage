@@ -16,7 +16,7 @@ $json = json_decode($input);
 
 $options = [
   'http' => [ // use 'http' even if you send the request to https
-    'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+    'header'  => "Content-type: application/x-www-form-urlencoded;\r\nConnection: keep-alive\r\n;",
     'method'  => 'POST',
     'content' => http_build_query($json->postdata),
     'timeout' => 1000,
