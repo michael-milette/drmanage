@@ -34,6 +34,7 @@ class DrmanageController {
 
     // Need to put out a header now because this will output newlines to keep the connection open
     header('Content-type: application/json');
+    header('Connection: keep-alive');
 
     $site = new DrupalSite();
 
