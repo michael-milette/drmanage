@@ -34,8 +34,8 @@ class DrupalSite {
       if ($result = $this->run_agent($this->get_host_url() . "/manage.php?operation=backup&verbose=true")) {
         $json = json_decode($result['data']);
         $log = '';
-        if (isset($json['messages'])) {
-          $log = join("\n", $json['messages']);
+        if (isset($json->messages)) {
+          $log = join("\n", $json->messages);
         }
         $this->update_event_time('backup', $log);
         return [
