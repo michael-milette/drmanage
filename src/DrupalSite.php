@@ -33,6 +33,7 @@ class DrupalSite {
     if ($this->node) {
       if ($result = $this->run_agent($this->get_host_url() . "/manage.php?operation=backup&verbose=true")) {
         $json = json_decode($result['data']);
+        $self->update_event_time('backup');
         return [
           'bytes' => $result['bytes'],
           'json' => $json,
@@ -50,6 +51,7 @@ class DrupalSite {
     if ($this->node) {
       if ($result = $this->run_agent($this->get_host_url() . "/manage.php?operation=restore&verbose=true")) {
         $json = json_decode($result['data']);
+        $site->update_event_time('restore');
         return [
           'bytes' => $result['bytes'],
           'json' => $json,

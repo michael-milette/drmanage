@@ -44,15 +44,13 @@ class DrmanageController {
 
     // Send the backup request
     $result = $site->backup();
-    $result = $site->restore();
+
     if ($result['bytes'] == 0) {
       return new JsonResponse(['status' => 'error', 'messages' => ['Backup failed. Connection lost.']]);
     }
     if (empty($result['json'])) {
       return new JsonResponse(['status' => 'error', 'messages' => ['JSON decode error.']]);
     }
-
-    $site->update_event_time('backup');
 
     return new JsonResponse($result['json']);
   }
@@ -75,14 +73,13 @@ class DrmanageController {
 
     // Send the restore request
     $result = $site->restore();
+
     if ($result['bytes'] == 0) {
       return new JsonResponse(['status' => 'error', 'messages' => ['Restore failed. Connection lost.']]);
     }
     if (empty($result['json'])) {
       return new JsonResponse(['status' => 'error', 'messages' => ['JSON decode error.']]);
     }
-
-    $site->update_event_time('restore');
 
     return new JsonResponse($result['json']);
   }
