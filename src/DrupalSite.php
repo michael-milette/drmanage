@@ -33,7 +33,11 @@ class DrupalSite {
     if ($this->node) {
       if ($result = $this->run_agent($this->get_host_url() . "/manage.php?operation=backup&verbose=true")) {
         $json = json_decode($result['data']);
-        $this->update_event_time('backup');
+        $log = '';
+        if (isset($json['messages'])) {
+          $log = join("\n", $json['messages']);
+        }
+        $this->update_event_time('backup', $log);
         return [
           'bytes' => $result['bytes'],
           'json' => $json,
@@ -109,7 +113,7 @@ class DrupalSite {
    * @param unknown $event - 'backup' or 'restore'
    * @return boolean
    */
-  public function update_event_time($event)
+  public function update_event_time($event, $log='')
   {
     if (!$this->node) {
       return false;
@@ -120,6 +124,7 @@ class DrupalSite {
 
     if ($event == 'backup') {
       $this->node->set('field_last_backup', $datestr);
+      $this->node->set('field_last_backup_log', $log);
     } else if ($event == 'restore') {
       $this->node->set('field_last_restore', $datestr);
     }
