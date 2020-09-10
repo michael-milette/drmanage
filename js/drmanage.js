@@ -23,7 +23,7 @@ function submitBackupForm()
       for (msg of data.messages) {
         response.append(msg + "\n");
       }
-      response.append("\nBackup is complete.\n");
+      response.append("\n--- END --\n");
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       clearInterval(timer);
@@ -59,7 +59,7 @@ function submitRestoreForm()
       for (msg of data.messages) {
         response.append(msg + "\n");
       }
-      response.append("\nRestore is complete.\n");
+      response.append("\n--- END --\n");
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       clearInterval(timer);
