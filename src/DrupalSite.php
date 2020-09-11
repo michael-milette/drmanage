@@ -122,8 +122,8 @@ class DrupalSite {
     }
 
     $this->node->set('field_last_backup_log', $log);
-
     $this->node->save();
+
     return true;
   }
 
@@ -132,7 +132,7 @@ class DrupalSite {
    * @param unknown $event - 'backup' or 'restore'
    * @return boolean
    */
-  public function update_event_time($event, $log='')
+  public function update_event_time($event)
   {
     if (!$this->node) {
       return false;
@@ -143,7 +143,6 @@ class DrupalSite {
 
     if ($event == 'backup') {
       $this->node->set('field_last_backup', $datestr);
-      $this->node->set('field_last_backup_log', $log);
     } else if ($event == 'restore') {
       $this->node->set('field_last_restore', $datestr);
     }
