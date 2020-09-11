@@ -20,6 +20,7 @@ class BackupForm extends FormBase {
     $nids = \Drupal::entityQuery('node')
     ->condition('type', 'drupal_site')
     ->condition('status', NODE_PUBLISHED)
+    ->condition('field_active_site', true)
     ->execute();
 
     foreach ($nids as $nid) {

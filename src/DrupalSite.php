@@ -12,10 +12,11 @@ class DrupalSite {
     }
   }
 
-  public static function all()
+  public static function all(bool $active=true)
   {
     $nids = \Drupal::entityQuery('node')
     ->condition('type', 'drupal_site')
+    ->condition('field_active_site', $active)
     ->execute();
 
     $sites = [];
@@ -33,11 +34,12 @@ class DrupalSite {
     if ($this->node) {
       if ($result = $this->run_agent($this->get_host_url() . "/manage.php?operation=backup&verbose=true")) {
         $json = json_decode($result['data']);
-        $log = '';
         if (isset($json->messages)) {
-          $log = join("\n", $json->messages);
+          $this->update_backup_log(join("\n", $json->messages));
         }
-        $this->update_event_time('backup', $log);
+        if (isset($json->status) && $json->status == 'success') {
+          $this->update_event_time('backup');
+        }
         return [
           'bytes' => $result['bytes'],
           'json' => $json,
@@ -106,6 +108,23 @@ class DrupalSite {
       return preg_replace('/^http:/', 'https:', $this->node->get('field_url')->value);
     }
     return null;
+  }
+
+  /**
+   * Update the drupal_site node with the log for the last backup event.
+   * @param unknown $log
+   * @return boolean
+   */
+  public function update_backup_log($log='')
+  {
+    if (!$this->node) {
+      return false;
+    }
+
+    $this->node->set('field_last_backup_log', $log);
+
+    $this->node->save();
+    return true;
   }
 
   /**

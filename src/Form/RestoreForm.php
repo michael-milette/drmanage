@@ -11,7 +11,7 @@ use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
 
 class RestoreForm extends FormBase {
-    
+
     public function getFormId() {
         return 'drmanage_restoreform';
     }
@@ -20,7 +20,7 @@ class RestoreForm extends FormBase {
 
         $hosts = [];
         $backup_type = array(
-            'daily' => 'Daily', 
+            'daily' => 'Daily',
             'weekly'=> 'Weekly',
             'monthly' => 'Monthly'
         );
@@ -28,6 +28,7 @@ class RestoreForm extends FormBase {
         $nids = \Drupal::entityQuery('node')
         ->condition('type', 'drupal_site')
         ->condition('status', NODE_PUBLISHED)
+        ->condition('field_active_site', true)
         ->execute();
 
         foreach ($nids as $nid) {
@@ -95,7 +96,7 @@ class RestoreForm extends FormBase {
    * @return 10 most recent backup file options
    */
   public function getRestoreOptions($app_name = '', $onChange = TRUE) {
-    
+
     // Get AWS credentials from config
     $conf = \Drupal::config('drmanage.settings');
     $s3_access_key = $conf->get('s3_access_key');
@@ -160,7 +161,7 @@ class RestoreForm extends FormBase {
                 $label = sprintf('%s (%0.2f MB)',
                 $result['Contents'][$n]['Key'],
                 $result['Contents'][$n]['Size'] / 1000000);
-                
+
                 $html =  '<div class="js-form-item form-item js-form-type-radio form-type--radio form-type--boolean js-form-item-restore form-item--restore">';
                 $html .= '<input data-drupal-selector="edit-restore-' . $filename . '" ';
                 $html .= 'type="radio" id="edit-restore-' . $filename . '" name="restore" ';
@@ -189,7 +190,7 @@ class RestoreForm extends FormBase {
             ]);
         } catch(S3Exception $e) {
             return $options;
-        } 
+        }
 
         if (isset($result['Contents'])) {
             // Make an options list from the last 10 items
@@ -200,18 +201,18 @@ class RestoreForm extends FormBase {
                     $result['Contents'][$n]['Key'],
                     $result['Contents'][$n]['Size'] / 1000000
                 );
-            }  
+            }
         } else {
             $options[] = 'No backup files found.';
         }
         return $options;
-    } 
+    }
   }
 
   /** Helper function to remove environment information (dev, qa, test, etc.)
    *  from application name. The current implementation lists the restore options
    *  for all application environments.
-   * 
+   *
    *  @return string
    */
   private function generalizeAppName($app_name) {
