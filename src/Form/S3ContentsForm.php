@@ -21,6 +21,8 @@ class S3ContentsForm extends FormBase {
         $header = [
             'file' => t('File'),
             'size' => t('Size'),
+            'site_name' => t('Site Name'),
+            'site_type' => t('Site Type'),
           ];
 
         $form['action'] = [
@@ -169,12 +171,47 @@ class S3ContentsForm extends FormBase {
         }
 
         for ($n = 0; $n < sizeof($result['Contents']); $n++) {
+          // Extract application name from backup file name
+          $app_name = preg_match('/([^0-9]*)/', basename($result['Contents'][$n]['Key']), $matches);
+          $app_name = substr($matches[0], 0, -1);
+          
+
+          if ($fp = fopen("/tmp/testing", "a+")) {
+            fwrite($fp, $app_name);
+            fclose($fp);
+          }
+          $info = $this->getSiteInfo($app_name);
+
+          // Set results for each column
           $contents[$result['Contents'][$n]['Key']] = [
               'file' => $result['Contents'][$n]['Key'],
               'size' => sprintf('%0.2f MB', $result['Contents'][$n]['Size'] / 1000000), // bytes to MB
+              'site_name' => $info['name'],
+              'site_type' => $info['type'],
           ];
 
         }
         return $contents;
+    }
+
+    private function getSiteInfo($app_name) {
+        // Load Drupal node containing the selected host URL
+        $nids = \Drupal::entityQuery('node')
+        ->condition('type', 'drupal_site')
+        ->condition('status', NODE_PUBLISHED)
+        ->condition('field_application_name', $app_name, '=')
+        ->execute();
+
+        if(!empty($nids)){
+            $nid = array_shift($nids);
+            $node = \Drupal\node\Entity\Node::load($nid);
+            
+            $info = array (
+                'name' => $node->getTitle(),
+                'type' => $node->get('field_site_type')->value
+            );
+            return $info;
+        } 
+        return null;   
     }
 }
