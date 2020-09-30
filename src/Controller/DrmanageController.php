@@ -103,7 +103,7 @@ class DrmanageController {
     }
 
     $host_url = $site->get_host_url();
-    $result = file_get_contents("$host_url/manage.php?operation=space");
+    $result = file_get_contents("$host_url/rmanage.php?operation=space");
     $json = json_decode($result);
 
     return [

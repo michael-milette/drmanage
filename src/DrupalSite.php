@@ -29,29 +29,6 @@ class DrupalSite {
     return $sites;
   }
 
-  public function backup()
-  {
-    if ($this->node) {
-      if ($result = $this->run_agent($this->get_host_url() . "/manage.php?operation=backup&verbose=true")) {
-        $json = json_decode($result['data']);
-        if (isset($json->messages)) {
-          $this->update_backup_log(join("\n", $json->messages));
-        }
-        if (isset($json->status) && $json->status == 'success') {
-          $this->update_event_time('backup');
-        }
-        return [
-          'bytes' => $result['bytes'],
-          'json' => $json,
-        ];
-      }
-    }
-    return [
-      'bytes' => 0,
-      'json' => [],
-    ];
-  }
-
   public function start_backup_job()
   {
     if (!$this->node) {
@@ -102,7 +79,7 @@ class DrupalSite {
   public function restore()
   {
     if ($this->node) {
-      if ($result = $this->run_agent($this->get_host_url() . "/manage.php?operation=restore&verbose=true")) {
+      if ($result = $this->run_agent($this->get_host_url() . "/rmanage.php?operation=restore&verbose=true")) {
         $json = json_decode($result['data']);
         $this->update_event_time('restore');
         return [
