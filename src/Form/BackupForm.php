@@ -25,14 +25,14 @@ class BackupForm extends FormBase {
 
     foreach ($nids as $nid) {
       $node = \Drupal\node\Entity\Node::load($nid);
-      $url = $node->get('field_url')->value;
+      $app_name = $node->get('field_application_name')->value;
       $title = $node->getTitle();
-      $hosts[$url] = $title;
+      $hosts[$app_name] = $title;
     }
 
     natcasesort($hosts);
 
-    $form['host_url'] = [
+    $form['app_name'] = [
       '#type' => 'select',
       '#title' => 'Host',
       '#description' => 'Host to back up',
@@ -49,7 +49,7 @@ class BackupForm extends FormBase {
 
     $form['submit'] = [
       '#type' => 'submit',
-      '#value' => 'Backup!',
+      '#value' => 'Backup',
       '#tableselect' => False,
       '#tabledrag' => False,
       '#attributes' => [

@@ -69,12 +69,22 @@ function drmanage_webform_submission_insert(WebformSubmission $webform) {
 
 function drmanage_cron() {
   $timeNow = date('H:i');
+
   if ($timeNow == '07:00') { // 3:00 AM EDT
-    $sites = DrupalSite::all();
     foreach ($sites as $site) {
       if ($site->get_app_name() != 'localhost') {
-        $site->backup();
+        if ($site->get_app_name() == 'awsform-dev') {
+          $site->start_backup_job();
+        }
+      }
+    }
+  } else {
+    $sites = DrupalSite::all();
+    foreach ($sites as $site) {
+      if ($job = $site->get_backup_job_id()) {
+        $site->get_backup_results($job);
       }
     }
   }
+
 }

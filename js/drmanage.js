@@ -2,32 +2,41 @@ $ = jQuery;
 
 function submitBackupForm()
 {
-  let host_url = document.getElementById('edit-host-url').value;
+  let app_name = document.getElementById('edit-app-name').value;
   let response = document.querySelector('#drmanage-backupform #edit-response');
-  response.innerHTML = "Backup is running. Please wait...\n";
-
-  let timer = setInterval(function() {
-    response.append('.');
-  }, 1000);
-
+  response.innerHTML = "Backup is starting. Please wait...\n";
+  let job = '';
+  
   $.ajax({
     url: '/admin/drmanage/request_backup',
     type: 'POST',
     data: {
-      'host_url': host_url
+      'app_name': app_name
     },
     dataType: 'json',
     success: function(data) {
-      clearInterval(timer);
-      response.append("\n");
-      for (msg of data.messages) {
-        response.append(msg + "\n");
+      if (data.status == 'ok') {
+        job = data.job;
+        let timer = setInterval(function() {
+          $.ajax({
+            url: '/admin/drmanage/query_job/' + job,
+            type: 'POST',
+            data: {
+              app_name: app_name
+            },
+            success: function(data) {
+              response.innerHTML = '';
+              for (txt of data.messages) {
+                response.append(txt + "\n");
+              }
+              if (data.status) {
+                  clearInterval(timer);
+                  response.append('Finished. Status=' + data.status);
+              }
+            }
+          });
+        }, 1000);
       }
-      response.append("\n--- END --\n");
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      clearInterval(timer);
-      alert("Status: " + textStatus); alert("Error: " + errorThrown); 
     }
   });
 
@@ -36,7 +45,7 @@ function submitBackupForm()
 
 function submitRestoreForm()
 {
-  let host_url = document.getElementById('edit-host-url').value;
+  let app_name = document.getElementById('edit-app-name').value;
   let response = document.querySelector('#drmanage-restoreform #edit-response');
   let backup_file = document.querySelector('#edit-restore input[name="restore"]:checked').value;
   response.innerHTML = "Restore is in progress. Please wait...\n";
@@ -49,8 +58,8 @@ function submitRestoreForm()
     url: '/admin/drmanage/request_restore',
     type: 'POST',
     data: {
-      'host_url': host_url,
-      'backup_file': backup_file
+      app_name: app_name,
+      backup_file: backup_file
     },
     dataType: 'json',
     success: function(data) {
@@ -72,19 +81,17 @@ function submitRestoreForm()
 
 function updateRestoreOptions()
 {
-    let selector = document.getElementById('edit-host-url');
+    let selector = document.getElementById('edit-app-name');
     let edit_restore = document.getElementById('edit-restore');
     let backup_type = document.getElementById('edit-backup-type');
 
-    console.log('Host URL: ' + selector.value);
-    console.log('Backup Type: ' + backup_type.value);
     edit_restore.innerHTML = '';
 
     $.ajax({
       url: '/admin/drmanage/update_restore_options',
       type: 'POST',
       data: {
-        'host_url': selector.value,
+        'app_name': selector.value,
         'backup_type': backup_type.value,
       },
       dataType: 'json',

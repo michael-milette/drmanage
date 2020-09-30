@@ -24,35 +24,45 @@ class DrmanageController {
   }
 
   /**
-   * Handle a backup request.
+   * Initiate an asynchronous backup request.
    * This function will contact the remote host and initiate a backup.
    * TODO - JSON response codes
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
   public function request_backup() {
-    $host_url = $_POST['host_url'];
+    $app_name = $_POST['app_name'];
 
     // Need to put out a header now because this will output newlines to keep the connection open
     header('Content-type: application/json');
-    header('Connection: keep-alive');
 
     $site = new DrupalSite();
 
-    if (!$site->find(['host_url' => $host_url])) {
+    if (!$site->find(['app_name' => $app_name])) {
       return new JsonResponse(['status' => 'error', 'messages' => ['Cannot open site record.']]);
     }
 
     // Send the backup request
-    $result = $site->backup();
+    $result = $site->start_backup_job();
+    return new JsonResponse($result);
+  }
 
-    if ($result['bytes'] == 0) {
-      return new JsonResponse(['status' => 'error', 'messages' => ['Backup failed. Connection lost.']]);
-    }
-    if (empty($result['json'])) {
-      return new JsonResponse(['status' => 'error', 'messages' => ['JSON decode error.']]);
+  public function query_job($job)
+  {
+    $app_name = $_POST['app_name'];
+
+    // Need to put out a header now because this will output newlines to keep the connection open
+    header('Content-type: application/json');
+
+    $site = new DrupalSite();
+
+    if (!$site->find(['app_name' => $app_name])) {
+      return new JsonResponse(['status' => 'error', 'messages' => ['Cannot open site record.']]);
     }
 
-    return new JsonResponse($result['json']);
+    // Get the results. If the backup is complete, it will also store the result.
+    $result = $site->get_backup_results($job);
+
+    return new JsonResponse($result);
   }
 
   /**
@@ -62,12 +72,12 @@ class DrmanageController {
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
   public function request_restore() {
-    $host_url = $_POST['host_url'];
+    $app_name = $_POST['app_name'];
     $backup_file = $_POST['backup_file'];
 
     $site = new DrupalSite();
 
-    if (!$site->find(['host_url' => $host_url])) {
+    if (!$site->find(['app_name' => $app_name])) {
       return new JsonResponse(['status' => 'error', 'messages' => ['Cannot open site record.']]);
     }
 
