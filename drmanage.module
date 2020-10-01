@@ -71,11 +71,10 @@ function drmanage_cron() {
   $timeNow = date('H:i');
 
   if ($timeNow == '07:00') { // 3:00 AM EDT
+    $sites = DrupalSite::all();
     foreach ($sites as $site) {
       if ($site->get_app_name() != 'localhost') {
-        if ($site->get_app_name() == 'awsform-dev') {
-          $site->start_backup_job();
-        }
+        $site->start_backup_job();
       }
     }
   } else {
