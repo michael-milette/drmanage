@@ -197,6 +197,10 @@ class RestoreForm extends FormBase {
    *  @return string
    */
   private function generalizeAppName($app_name) {
+    // This function is not working out for Moodle because all sites start with learning- and the result is
+    // that you always see learning-test no matter what.
+    return $app_name;
+
     if ($app_name == 'localhost') {
       return '';
     } else {
