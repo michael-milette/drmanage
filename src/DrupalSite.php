@@ -64,6 +64,41 @@ class DrupalSite {
     return $json;
   }
 
+  public function start_restore_job($s3file)
+  {
+    if (!$this->node) {
+      return ['status' => 'error'];
+    }
+
+    $postdata = [
+      'aws_access_key_id' => $this->get_config('s3_access_key'),
+      'aws_secret_access_key' => $this->get_config('s3_secret_key'),
+      'aws_s3_bucket' => $this->get_config('s3_host_bucket'),
+      'aws_s3_region' => $this->get_config('s3_bucket_location'),
+    ];
+
+    $options = [
+      'http' => [ // use 'http' even if you send the request to https
+        'header'  => "Content-type: application/x-www-form-urlencoded",
+        'method'  => 'POST',
+        'content' => http_build_query($postdata),
+        'timeout' => 1000,
+      ]
+    ];
+
+    $url = $this->get_host_url() . "/rmanage.php?operation=restore&s3file=$s3file&job=true&verbose=true";
+    $context  = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+    $json = json_decode($result);
+
+    if ($json->status == 'ok') {
+      $this->node->set('field_restore_job_id', $json->job);
+      $this->node->save();
+    }
+
+    return $json;
+  }
+
   public function query_job($job)
   {
     if (!$this->node) {
@@ -74,24 +109,6 @@ class DrupalSite {
     $result = file_get_contents($url);
     $json = json_decode($result);
     return $json;
-  }
-
-  public function restore()
-  {
-    if ($this->node) {
-      if ($result = $this->run_agent($this->get_host_url() . "/rmanage.php?operation=restore&verbose=true")) {
-        $json = json_decode($result['data']);
-        $this->update_event_time('restore');
-        return [
-          'bytes' => $result['bytes'],
-          'json' => $json,
-        ];
-      }
-    }
-    return [
-      'bytes' => 0,
-      'json' => [],
-    ];
   }
 
   public function find($select)
@@ -134,7 +151,7 @@ class DrupalSite {
     return null;
   }
 
-  public function get_backup_results($job)
+  public function xget_backup_results($job)
   {
     $json = null;
 
@@ -164,45 +181,63 @@ class DrupalSite {
     return null;
   }
 
-  /**
-   * Update the drupal_site node with the log for the last backup event.
-   * @param unknown $log
-   * @return boolean
-   */
-  public function update_backup_log($log='')
+  public function get_restore_job_id()
   {
-    if (!$this->node) {
-      return false;
+    if ($this->node) {
+      return $this->node->get('field_restore_job_id')->value;
     }
-
-    $this->node->set('field_last_backup_log', $log);
-    $this->node->save();
-
-    return true;
+    return null;
   }
 
-  /**
-   * Update the drupal_site node with the current time for the last backup/restore event.
-   * @param unknown $event - 'backup' or 'restore'
-   * @return boolean
-   */
-  public function update_event_time($event)
+  public function get_results($job)
   {
-    if (!$this->node) {
-      return false;
+    $json = null;
+
+    $json = $this->query_job($job);
+
+    if (!empty($json->status)) {
+      $datestr = null;
+      if ($json->status == 'ok') {
+        $t = isset($json->end_time) ? strtotime($json->end_time) : time() - 14400; // Correct GMT to EDT (4 hours)
+        $datestr = date('Y-m-d', $t) . 'T' . date('H:i:s', $t);
+
+        if ($this->node->get('field_backup_job_id')->value == $job) {
+          $this->node->set('field_backup_job_id', null);
+          $this->node->set('field_last_backup', $datestr);
+          $this->node->set('field_last_backup_log', empty($json->messages) ? '' : join("\n", $json->messages));
+        } elseif ($this->node->get('field_restore_job_id')->value == $job) {
+          $this->node->set('field_restore_job_id', null);
+          $this->node->set('field_last_restore', $datestr);
+          $this->node->set('field_last_restore_log', empty($json->messages) ? '' : join("\n", $json->messages));
+        }
+
+        $this->node->save();
+      }
     }
 
-    $t = time() - 14400; // Correct GMT to EDT (4 hours)
-    $datestr = date('Y-m-d', $t) . 'T' . date('H:i:s', $t);
+    return $json;
+  }
 
-    if ($event == 'backup') {
-      $this->node->set('field_last_backup', $datestr);
-    } else if ($event == 'restore') {
-      $this->node->set('field_last_restore', $datestr);
+  public function xget_restore_results($job)
+  {
+    $json = null;
+
+    $json = $this->query_job($job);
+
+    if (!empty($json->status)) {
+      $this->node->set('field_restore_job_id', null);
+      if (!empty($json->messages)) {
+        $this->node->set('field_last_restore_log', join("\n", $json->messages));
+      }
+      if ($json->status == 'ok') {
+        $t = isset($json->end_time) ? strtotime($json->end_time) : time() - 14400; // Correct GMT to EDT (4 hours)
+        $datestr = date('Y-m-d', $t) . 'T' . date('H:i:s', $t);
+        $this->node->set('field_last_restore', $datestr);
+      }
+      $this->node->save();
     }
 
-    $this->node->save();
-    return true;
+    return $json;
   }
 
   /**
@@ -219,72 +254,5 @@ class DrupalSite {
     }
 
     return $conf->get($item);
-  }
-
-  /**
-   * Send a request to the remote server, while keeping the connection alive between this server and the client (browser).
-   * @param string $url
-   * @param string $file name of file (for restore)
-   * @return unknown
-   */
-  private function run_agent($url, $file=null)
-  {
-    // Create the request, which always includes S3 credentials
-    $request = [
-      'url' => $url,
-      'postdata' => [
-        'aws_access_key_id' => $this->get_config('s3_access_key'),
-        'aws_secret_access_key' => $this->get_config('s3_secret_key'),
-        'aws_s3_bucket' => $this->get_config('s3_host_bucket'),
-        'aws_s3_region' => $this->get_config('s3_bucket_location'),
-      ],
-    ];
-
-    if ($file) {
-      $request['postdata']['filename'] = $file;
-    }
-
-    // Set up the file descriptors
-    $descriptorspec = [
-      0 => ['pipe', 'r'],
-      1 => ['pipe', 'w'],
-      2 => ['pipe', 'w']
-    ];
-
-    $module_path = drupal_get_path('module', 'drmanage');
-
-    // Run the agent through a pipe, which allows us to monitor the state
-    $process = proc_open("/usr/bin/php $module_path/src/agent.php", $descriptorspec, $pipes);
-
-    // Send the request into the agent
-    fwrite($pipes[0], json_encode($request));
-    fclose($pipes[0]);
-
-    // Wait for the process to complete, while keeping the connection active
-    $secs = 0;
-    do {
-      $secs++;
-      sleep(1);
-      $status = @proc_get_status($process);
-      if (empty($status['running']) && !empty($status['stopped'])) {
-        @proc_terminate($process);
-        $status['running'] = false;
-      }
-      if (($secs % 5) == 0) { // Keep the connection alive by sending a newline every 5 secs
-        echo PHP_EOL;
-        flush();
-        ob_flush();
-      }
-    } while (!empty($status['running']));
-
-    // Get the result from the agent
-    $result = stream_get_contents($pipes[1]);
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-
-    return [
-      'bytes' => strlen($result),
-      'data' => $result
-    ];
   }
 }

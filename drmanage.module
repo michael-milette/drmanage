@@ -81,7 +81,7 @@ function drmanage_cron() {
     $sites = DrupalSite::all();
     foreach ($sites as $site) {
       if ($job = $site->get_backup_job_id()) {
-        $site->get_backup_results($job);
+        $site->get_results($job);
       }
     }
   }

@@ -32,9 +32,6 @@ class DrmanageController {
   public function request_backup() {
     $app_name = $_POST['app_name'];
 
-    // Need to put out a header now because this will output newlines to keep the connection open
-    header('Content-type: application/json');
-
     $site = new DrupalSite();
 
     if (!$site->find(['app_name' => $app_name])) {
@@ -60,7 +57,7 @@ class DrmanageController {
     }
 
     // Get the results. If the backup is complete, it will also store the result.
-    $result = $site->get_backup_results($job);
+    $result = $site->get_results($job);
 
     return new JsonResponse($result);
   }
@@ -82,16 +79,8 @@ class DrmanageController {
     }
 
     // Send the restore request
-    $result = $site->restore();
-
-    if ($result['bytes'] == 0) {
-      return new JsonResponse(['status' => 'error', 'messages' => ['Restore failed. Connection lost.']]);
-    }
-    if (empty($result['json'])) {
-      return new JsonResponse(['status' => 'error', 'messages' => ['JSON decode error.']]);
-    }
-
-    return new JsonResponse($result['json']);
+    $result = $site->start_restore_job($backup_file);
+    return new JsonResponse($result);
   }
 
   public function site_status(string $appName)

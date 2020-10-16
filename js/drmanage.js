@@ -11,7 +11,7 @@ function submitBackupForm()
     url: '/admin/drmanage/request_backup',
     type: 'POST',
     data: {
-      'app_name': app_name
+      app_name: app_name
     },
     dataType: 'json',
     success: function(data) {
@@ -33,6 +33,7 @@ function submitBackupForm()
                   clearInterval(timer);
                   response.append('Finished. Status=' + data.status);
               }
+              response.scrollTop = response.scrollHeight - response.clientHeight;
             }
           });
         }, 1000);
@@ -48,12 +49,9 @@ function submitRestoreForm()
   let app_name = document.getElementById('edit-app-name').value;
   let response = document.querySelector('#drmanage-restoreform #edit-response');
   let backup_file = document.querySelector('#edit-restore input[name="restore"]:checked').value;
-  response.innerHTML = "Restore is in progress. Please wait...\n";
-
-  let timer = setInterval(function() {
-    response.append('.');
-  }, 1000);
-
+  response.innerHTML = "Restore is starting. Please wait...\n";
+  let job = '';
+  
   $.ajax({
     url: '/admin/drmanage/request_restore',
     type: 'POST',
@@ -63,16 +61,29 @@ function submitRestoreForm()
     },
     dataType: 'json',
     success: function(data) {
-      clearInterval(timer);
-      response.append("\n");
-      for (msg of data.messages) {
-        response.append(msg + "\n");
+      if (data.status == 'ok') {
+        job = data.job;
+        let timer = setInterval(function() {
+          $.ajax({
+            url: '/admin/drmanage/query_job/' + job,
+            type: 'POST',
+            data: {
+              app_name: app_name
+            },
+            success: function(data) {
+              response.innerHTML = '';
+              for (txt of data.messages) {
+                response.append(txt + "\n");
+              }
+              if (data.status) {
+                  clearInterval(timer);
+                  response.append('Finished. Status=' + data.status);
+              }
+              response.scrollTop = response.scrollHeight - response.clientHeight;
+            }
+          });
+        }, 1000);
       }
-      response.append("\n--- END --\n");
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      clearInterval(timer);
-      alert("Status: " + textStatus); alert("Error: " + errorThrown); 
     }
   });
 
