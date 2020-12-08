@@ -114,9 +114,10 @@ function drmanage_webform_submission_insert(WebformSubmission $webform) {
 }
 
 function drmanage_cron() {
+  date_default_timezone_set("america/toronto");
   $timeNow = date('H:i');
 
-  if ($timeNow == '07:00') { // 3:00 AM EDT
+  if ($timeNow == '03:00') {
     $sites = DrupalSite::all();
     foreach ($sites as $site) {
       if ($site->get_app_name() != 'localhost') {
