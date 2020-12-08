@@ -54,14 +54,14 @@ function drmanage_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
     // Return a date string from field_last_backup.
     $last_successful_backup = $entity->get('field_last_backup')->getString();
     $status = 'green';
-    if (strtotime($last_successful_backup) <= strtotime('-7 days')) {
-      $status = 'red';
+    if (strtotime($last_successful_backup) <= strtotime('-2 days')) {
+      $status = 'orange';
     }
     if (strtotime($last_successful_backup) <= strtotime('-3 days')) {
       $status = 'pink';
     }
-    if (strtotime($last_successful_backup) <= strtotime('-2 days')) {
-      $status = 'orange';
+    if (strtotime($last_successful_backup) <= strtotime('-7 days')) {
+      $status = 'red';
     }
     $log_value = $entity->get('field_last_backup_log')->getString();
 
