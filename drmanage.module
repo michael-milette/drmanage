@@ -30,7 +30,53 @@ function drmanage_theme($existing, $type, $theme, $path) {
  */
 function drmanage_page_attachments(array &$page) {
   $page['#attached']['library'][] = 'drmanage/drmanage';
+
+  $current_route = \Drupal::routeMatch()->getRouteName();
+  if ($current_route == 'view.drupal_sites.page_1') {
+    $page['#attached']['library'][] = 'drmanage/drupal-and-moodle-view';
+  }
+
 }
+
+
+/**
+ * Implements hook_entity_presave().
+ * Process backup status using the last_backup_log and also the last_backup date.
+ * Store the status to use with view styles to draw attention to backups that need it.
+ * Added a text list field called field_status to the manage site already, it's primed.
+ */
+function drmanage_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
+  // Exit early if possible.
+  if ($entity->getEntityTypeId() != 'node') {
+    return;
+  }
+  if ($entity->bundle() == 'drupal_site') {
+    // Return a date string from field_last_backup.
+    $last_successful_backup = $entity->get('field_last_backup')->getString();
+    $status = 'green';
+    if (strtotime($last_successful_backup) <= strtotime('-7 days')) {
+      $status = 'red';
+    }
+    if (strtotime($last_successful_backup) <= strtotime('-3 days')) {
+      $status = 'pink';
+    }
+    if (strtotime($last_successful_backup) <= strtotime('-2 days')) {
+      $status = 'orange';
+    }
+    $log_value = $entity->get('field_last_backup_log')->getString();
+
+    if (strpos($log_value, 'og file is missing.') >= 1) {
+      if ($status == 'green') {
+        $status = 'orange';
+      }
+      $entity->set('field_status', $status);
+    }
+    else {
+      $entity->set('field_status', $status);
+    }
+  }
+}
+
 
 function drmanage_webform_submission_insert(WebformSubmission $webform) {
 
