@@ -67,7 +67,7 @@ function drmanage_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
 
     if (strpos($log_value, 'og file is missing.') >= 1) {
       if ($status == 'green') {
-        $status = 'orange';
+        $status = 'red';
       }
       $entity->set('field_status', $status);
     }
