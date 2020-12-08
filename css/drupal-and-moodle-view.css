@@ -12,7 +12,7 @@ tr.status-orange td.views-field-field-last-backup::before, tr.status-Orange td.v
    tr.status-red td.views-field-field-last-backup::before, tr.status-Red td.views-field-field-last-backup::before,
    tr.status-pink td.views-field-field-last-backup::before, tr.status-Green td.views-field-field-last-backup::before,
    tr.status-green td.views-field-field-last-backup::before, tr.status-Green td.views-field-field-last-backup::before {
-  content: "\e086";
+  content: "\e086"; /* glyphicon-info-sign */
   position: absolute;
   top: 30px;
 }
@@ -22,6 +22,7 @@ tr.status-orange td.views-field-field-last-backup::before, tr.status-Orange td.v
 }
 
 tr.status-red td.views-field-field-last-backup::before, tr.status-Red td.views-field-field-last-backup::before {
+  content: "\e101"; /* glyphicon-exclamation-sign */
   color: red;
 }
 
@@ -30,6 +31,7 @@ tr.status-pink td.views-field-field-last-backup::before, tr.status-Pink td.views
 }
 
 tr.status-green td.views-field-field-last-backup::before, tr.status-Green td.views-field-field-last-backup::before {
+  content: "\e084"; /* glyphicon-check */
   color: green;
 }
 
