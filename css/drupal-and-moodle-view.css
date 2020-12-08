@@ -1,0 +1,37 @@
+
+table td.glyphicon, .glyphicon {
+  top: -1px !important;
+}
+
+table.wb-tables.wb-init td.glyphicon {
+  top: 0px !important;
+  padding-top: 3px !important;
+}
+
+tr.status-orange td.views-field-field-last-backup::before, tr.status-Orange td.views-field-field-last-backup::before,
+   tr.status-red td.views-field-field-last-backup::before, tr.status-Red td.views-field-field-last-backup::before,
+   tr.status-pink td.views-field-field-last-backup::before, tr.status-Green td.views-field-field-last-backup::before,
+   tr.status-green td.views-field-field-last-backup::before, tr.status-Green td.views-field-field-last-backup::before {
+  content: "\e086"; /* glyphicon-info-sign */
+  position: absolute;
+  top: 30px;
+}
+
+tr.status-orange td.views-field-field-last-backup::before, tr.status-Orange td.views-field-field-last-backup::before {
+  color: orange;
+}
+
+tr.status-red td.views-field-field-last-backup::before, tr.status-Red td.views-field-field-last-backup::before {
+  content: "\e101"; /* glyphicon-exclamation-sign */
+  color: red;
+}
+
+tr.status-pink td.views-field-field-last-backup::before, tr.status-Pink td.views-field-field-last-backup::before {
+  color: pink;
+}
+
+tr.status-green td.views-field-field-last-backup::before, tr.status-Green td.views-field-field-last-backup::before {
+  content: "\e084"; /* glyphicon-check */
+  color: green;
+}
+

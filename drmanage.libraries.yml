@@ -4,3 +4,7 @@ drmanage:
       css/drmanage.css: {}
   js:
     js/drmanage.js: {}
+drupal-and-moodle-view:
+  css:
+    theme:
+      css/drupal-and-moodle-view.css: {}
