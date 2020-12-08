@@ -14,7 +14,8 @@ tr.status-orange td.views-field-field-last-backup::before, tr.status-Orange td.v
    tr.status-green td.views-field-field-last-backup::before, tr.status-Green td.views-field-field-last-backup::before {
   content: "\e086"; /* glyphicon-info-sign */
   position: absolute;
-  top: 30px;
+  top: 5px;
+  right: -10px;
 }
 
 tr.status-orange td.views-field-field-last-backup::before, tr.status-Orange td.views-field-field-last-backup::before {
