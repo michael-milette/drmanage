@@ -1,4 +1,82 @@
 
+div.info-msg.site-Green {
+  color: #270;
+  /*background-color: #DFF2BF;*/
+}
+
+div.info-msg.site-Orange {
+  color: #9F6000;
+  /*background-color: #FEEFB3;*/
+}
+
+div.info-msg.site-Pink {
+  color: #C8706C;
+  /*background-color: #FFDADA;*/
+}
+
+div.info-msg.site-Red {
+  color: #D8000C;
+  /*background-color: #FFBABA;*/
+}
+
+div.info-msg i.fa {
+  font-size: x-large;
+  left: 15px;
+  margin-top: 12px;
+  margin-left: 5px;
+}
+
+.views-field-nothing .fa-gears::before {
+  margin-left: 5px;
+  font-size: larger;
+  color: #555;
+}
+
+div.info-msg.site-Green i.fa::before {
+  content: "\f00c";/*fa-info-circle*/
+}
+
+div.info-msg.site-Orange i.fa::before {
+  content: "\f05a";/*fa-info-circle*/
+}
+
+div.info-msg.site-Pink i.fa::before {
+  content: "\f071";/*fa-warning*/
+}
+
+div.info-msg.site-Red i.fa::before {
+  content: "\f057";/*fa-times-circle*/
+}
+
+th.views-field-field-status {
+  background: none !important;
+}
+
+th.views-field-field-status .sorting-cnt {
+  visibility: hidden;
+}
+
+td.fa.site-type-drupal::before {
+  content: "\f1a9"; /*fa-drupal*/
+  font-size: xx-large;
+  color: #556cc3;
+  margin-right: 3px;
+}
+
+td.fa.site-type-moodle::before {
+  content: "\f19d"; /*fa-graduation-cap*/
+  font-size: xx-large;
+  color: #9e6e43;
+  margin-right: 3px;
+}
+
+td.fa.site-type-::before, td.fa.site-type-unknown::before {
+  content: "\f1b2"; /*fa-book*/
+  font-size: xx-large;
+  color: #9b9c9e;
+  margin-right: 3px;
+}
+
 table td.glyphicon, .glyphicon {
   top: -1px !important;
 }
@@ -35,4 +113,3 @@ tr.status-green td.views-field-field-last-backup::before, tr.status-Green td.vie
   content: "\e084"; /* glyphicon-check */
   color: green;
 }
-
