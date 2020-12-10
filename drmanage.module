@@ -64,7 +64,13 @@ function drmanage_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
       $status = 'red';
     }
     $log_value = $entity->get('field_last_backup_log')->getString();
-
+    $log_value = strtolower($log_value);
+    if (stripos($log_value, 'drupal') >= 1) {
+      $entity->set('field_platform', 'drupal');
+    }
+    if (stripos($log_value, 'moodle') >= 1) {
+      $entity->set('field_platform', 'moodle');
+    }
     if (strpos($log_value, 'og file is missing.') >= 1) {
       if ($status == 'green') {
         $status = 'red';

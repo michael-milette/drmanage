@@ -8,3 +8,4 @@ drupal-and-moodle-view:
   css:
     theme:
       css/drupal-and-moodle-view.css: {}
+      '//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css': { type: external }
