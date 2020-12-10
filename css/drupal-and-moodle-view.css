@@ -32,6 +32,10 @@ div.info-msg i.fa {
   color: #555;
 }
 
+.log-and-manage a.fa-gears {
+  text-decoration: none;
+}
+
 div.info-msg.site-Green i.fa::before {
   content: "\f00c";/*fa-info-circle*/
 }
