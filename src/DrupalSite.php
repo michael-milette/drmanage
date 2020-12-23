@@ -210,9 +210,14 @@ class DrupalSite {
           $this->node->set('field_last_restore', $datestr);
           $this->node->set('field_last_restore_log', empty($json->messages) ? '' : join("\n", $json->messages));
         }
-
-        $this->node->save();
+      } else { // Update the log, even if status != 'ok'
+        if ($this->node->get('field_backup_job_id')->value == $job) {
+          $this->node->set('field_last_backup_log', empty($json->messages) ? '' : join("\n", $json->messages));
+        } elseif ($this->node->get('field_restore_job_id')->value == $job) {
+          $this->node->set('field_last_restore_log', empty($json->messages) ? '' : join("\n", $json->messages));
+        }
       }
+      $this->node->save();
     }
 
     return $json;
