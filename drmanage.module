@@ -117,7 +117,7 @@ function drmanage_cron() {
   date_default_timezone_set("america/toronto");
   $timeNow = date('H:i');
 
-  if ($timeNow == '05:00') {
+  if ($timeNow == '03:30') {
     $sites = DrupalSite::all();
     foreach ($sites as $site) {
       if ($site->get_app_name() != 'localhost') {
