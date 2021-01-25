@@ -3,12 +3,13 @@
 namespace Drupal\drmanage\Controller;
 
 //use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Render\HtmlResponse;
-use Symfony\Component\HttpFoundation\JsonResponse;
-//use Symfony\Component\HttpFoundation\RedirectResponse;
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
+use Drupal\Core\Render\HtmlResponse;
 use Drupal\drmanage\DrupalSite;
+use Drupal\node\NodeInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+//use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class DrmanageController {
   /**
@@ -81,6 +82,45 @@ class DrmanageController {
     // Send the restore request
     $result = $site->start_restore_job($backup_file);
     return new JsonResponse($result);
+  }
+
+  public function enableMaint(NodeInterface $node)
+  {
+    $site = new DrupalSite($node);
+    $status = $site->set_maintmode('on');
+
+    if (is_string($status)) {
+      $build['content'] = [
+        '#type' => 'item',
+        '#markup' => 'Maintenance mode is set to "' . $status . '" for ' . $node->getTitle(),
+      ];
+      return $build;
+    }
+
+    $build['content'] = [
+      '#type' => 'item',
+      '#markup' => 'error setting mode for ' . $site->getTitle(),
+    ];
+    return $build;
+  }
+
+  public function disableMaint(NodeInterface $node)
+  {
+    $site = new DrupalSite($node);
+    $status = $site->set_maintmode('off');
+    if (is_string($status)) {
+      $build['content'] = [
+        '#type' => 'item',
+        '#markup' => 'Maintenance mode is set to "' . $status . '" for ' . $node->getTitle(),
+      ];
+      return $build;
+    }
+
+    $build['content'] = [
+      '#type' => 'item',
+      '#markup' => 'error setting mode',
+    ];
+    return $build;
   }
 
   public function site_status(string $appName)
