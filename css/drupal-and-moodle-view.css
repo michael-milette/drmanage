@@ -117,3 +117,23 @@ tr.status-green td.views-field-field-last-backup::before, tr.status-Green td.vie
   content: "\e084"; /* glyphicon-check */
   color: green;
 }
+
+/* For maintenance mode, off or not set.*/
+div.info-msg i.fa-, div.info-msg.maint-off i.fa-maint-off {
+  display: none;
+}
+
+/* For maintenance mode */
+div.info-msg.support {
+  position: relative;
+}
+
+/* For maintenance mode */
+div.info-msg.support i.fa-support::before {
+  content: "\f1cd" !important; /*fa-support*/
+  position: absolute;
+  color: brown;
+  left: 40px;
+  top: 13px;
+}
+

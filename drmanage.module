@@ -106,10 +106,12 @@ function drmanage_webform_submission_insert(WebformSubmission $webform) {
   $context  = stream_context_create($options);
   $result = file_get_contents($url, false, $context);
   if ($result === FALSE) {
-    drupal_set_message('Failed for some reason', 'error');
+    //drupal_set_message('Failed for some reason', 'error'); // Deprecated api call, must be changed prior to upgrading to D9, see next line.
+    \Drupal::messenger()->addMessage('Failed for some reason', 'error', TRUE);
   }
   else {
-    drupal_set_message('Success! Maybe. '. print_r($result, true));
+    //drupal_set_message('Success! Maybe. '. print_r($result, true)); // Deprecated api call, must be changed prior to upgrading to D9, see next line.
+    \Drupal::messenger()->addMessage('Success! Maybe. ' . print_r($result, TRUE), 'status', TRUE);
   }
 }
 
@@ -129,6 +131,11 @@ function drmanage_cron() {
     foreach ($sites as $site) {
       if ($job = $site->get_backup_job_id()) {
         $site->get_results($job);
+      }
+      $maint = $site->update_maintmode(); // Returns 'on' or 'off', otherwise an array with an error message.
+      if (is_array($maint)) {
+        // An error has occured, improve this later.
+        \Drupal::logger('DEBUG')->notice('<pre>' . print_r($maint, TRUE) . '</pre>');
       }
     }
   }
