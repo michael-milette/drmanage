@@ -111,6 +111,36 @@ class DrupalSite {
     return $json;
   }
 
+  public function set_maintmode($new_mode = 'off')
+  {
+    if (!$this->node) {
+      return ['status' => 'error'];
+    }
+
+    $url = $this->get_host_url() . "/rmanage.php?operation=maint&mode=" . $new_mode;
+    try {
+      $result = file_get_contents($url);
+    }
+    catch (Exception $e) {
+      // Some sites aren't active, maybe throw an error.
+      return ['status' => 'error', 'msg' => $e->getMessage()];
+    }
+    $json = json_decode($result);
+
+    if (!empty($json) && is_object($json) && $json->maintMode == 'on') {
+      if (!$this->node->get('field_maint')->value || is_null($this->node->get('field_maint')->value)) {
+        $this->node->set('field_maint', TRUE);
+        $this->node->save();
+      }
+      return $json->maintMode;
+    }
+    if ($this->node->get('field_maint')->value || is_null($this->node->get('field_maint')->value)) {
+      $this->node->set('field_maint', FALSE);
+      $this->node->save();
+    }
+    return 'off';
+  }
+
   public function query_maintmode()
   {
     if (!$this->node) {

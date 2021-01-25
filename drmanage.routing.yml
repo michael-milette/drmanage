@@ -62,6 +62,30 @@ drmanage.query_job:
   requirements:
     _permission: 'access administration pages'
 
+drmanage.enableMaint:
+  path: '/admin/drmanage/enable_maintenance/{node}'
+  defaults:
+    _title: 'Enable maint mode'
+    _controller: '\Drupal\drmanage\Controller\DrmanageController::enableMaint'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+drmanage.disableMaint:
+  path: '/admin/drmanage/disable_maintenance/{node}'
+  defaults:
+    _title: 'Disable maint mode'
+    _controller: '\Drupal\drmanage\Controller\DrmanageController::disableMaint'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    parameters:
+      node:
+        type: entity:node
+
 drmanage.request_restore:
   path: '/admin/drmanage/request_restore'
   defaults:
