@@ -39,43 +39,53 @@ foreach ($nids as $nid) {
     $daily_limit = $node->get('field_keep_daily_for')->value;
     $hourly_limit = $node->get('field_keep_hourly_for')->value;
 
-    // get backup files for app_name 
-    try {
-        $result = $s3->listObjectsV2([
-            'Bucket' => $s3_host_bucket,
-            'Prefix' => $app_name,
-        ]);
-    } catch(S3Exception $e) {
-        // TODO
-    }
+    // Get backup files for app_name.
+    $params = [
+        'Bucket' => $s3_host_bucket,
+        'Prefix' => $app_name
+    ];
 
-    for($n = 0; $n < sizeof($results['Contents']); $n++) {
-        
-        $date = new DateTime($result['Contents'][$n]['LastModified']);
-        $diff = $date->diff($curr);
+    do {
+        // Loop until there are no more objects to retrieve.
+        try {
+            // Retrieves up to 1000 objects at a time.
+            $result = $s3->listObjectsV2($params);
+        } catch(S3Exception $e) {
+            break;
+        }
 
-        // Compare with monthly limit
-        if ($diff->m + $diff->y * 12 > $month_limit) {
-            deleteFile($result['Contents'][$n]['Key']);
+        for($n = 0; $n < sizeof($results['Contents']); $n++) {
+            if (empty($filter) || stripos($result['Contents'][$n]['Key'], $filter) !== false) {
+
+                $date = new DateTime($result['Contents'][$n]['LastModified']);
+                $diff = $date->diff($curr);
+
+                // Compare with monthly limit
+                if ($diff->m + $diff->y * 12 > $month_limit) {
+                    deleteFile($result['Contents'][$n]['Key']);
+                }
+
+                // Compare with weekly limit
+                // *days returns total calculated difference in days...
+                // taking into account month and year differences
+                if (round($diff->days / 7 ) > $week_limit) {
+                    deleteFile($result['Contents'][$n]['Key']);
+                }
+
+                // Compare with daily limit
+                if ($diff->days > $daily_limit) {
+                    deleteFile($result['Contents'][$n]['Key']);
+                }
+
+                // Compare with hourly limit
+                if ($diff->h > $hourly_limit) {
+                    deleteFile($result['Contents'][$n]['Key']);
+                }
+            }
         }
-        
-        // Compare with weekly limit
-        // *days returns total calculated difference in days...
-        // taking into account month and year differences
-        if (round($diff->days / 7 ) > $week_limit) {
-            deleteFile($result['Contents'][$n]['Key']);
-        }
-  
-        // Compare with daily limit
-        if ($diff->days > $daily_limit) {
-            deleteFile($result['Contents'][$n]['Key']);
-        } 
-        
-        // Compare with hourly limit
-        if ($diff->h > $hourly_limit) {
-            deleteFile($result['Contents'][$n]['Key']);
-        }
-    }
+        $params['ContinuationToken'] = $result['NextContinuationToken'];
+    } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
+
 }
 
 function deleteFile($fn) {
