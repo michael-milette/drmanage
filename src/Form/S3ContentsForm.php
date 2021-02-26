@@ -181,20 +181,13 @@ class S3ContentsForm extends FormBase {
           $app_name = preg_match('/([^0-9]*)/', basename($s3Obj['Key']), $matches);
           $app_name = substr($matches[0], 0, -1);
 
-          if ($fp = fopen("/tmp/testing", "a+")) {
-            fwrite($fp, $app_name);
-            fclose($fp);
-          }
-          $info = $this->getSiteInfo($app_name);
-
           // Set results for each column
           $contents[$s3Obj['Key']] = [
             'file' => $s3Obj['Key'],
-              'size' => sprintf('%0.2f MB', $s3Obj['Size'] / 1000000), // bytes to MB
-              'site_name' => $info['name'],
-              'site_type' => $info['type'],
+            'size' => sprintf('%0.2f MB', $s3Obj['Size'] / 1000000), // bytes to MB
+            'site_name' => $info['name'],
+            'site_type' => $info['type'],
           ];
-
         }
 
         return $contents;
