@@ -134,7 +134,7 @@ class RestoreForm extends FormBase {
         }
         $s3Objects = array_merge($s3Objects, $result['Contents']);
         $params['ContinuationToken'] = $result['NextContinuationToken'];
-      } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
+      } while (!empty($result['IsTruncated'])); // Will be true until there are no more objects to retrieve.
 
       if ($cnt = count($s3Objects)) {
         // Make an options list from the last 10 items
@@ -186,7 +186,7 @@ class RestoreForm extends FormBase {
         }
         $s3Objects = array_merge($s3Objects, $result['Contents']);
         $params['ContinuationToken'] = $result['NextContinuationToken'];
-      } while (isset($result['IsTruncated'])); // Will be true until there are no more objects to retrieve.
+      } while (!empty($result['IsTruncated'])); // Will be true until there are no more objects to retrieve.
 
       if ($cnt = count($s3Objects)) {
         // Make an options list from the last 31 items.
