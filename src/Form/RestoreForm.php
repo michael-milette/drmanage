@@ -175,7 +175,7 @@ class RestoreForm extends FormBase {
         'Bucket' => $s3_host_bucket,
         'Prefix' => 'daily/' . $app_name
       ];
-      $result =[];
+      $result = ['Contents' => []];
       do {
         // Loop until there are no more objects to retrieve.
         try {
@@ -185,7 +185,7 @@ class RestoreForm extends FormBase {
         }
         $result['Contents'] = array_merge($result['Contents'], $objects['Contents']);
         $params['ContinuationToken'] = $objects['NextContinuationToken'];
-      } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
+      } while (isset($result['IsTruncated'])); // Will be true until there are no more objects to retrieve.
 
       if (isset($result['Contents'])) {
         // Make an options list from the last 31 items
