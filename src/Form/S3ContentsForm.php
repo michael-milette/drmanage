@@ -163,6 +163,7 @@ class S3ContentsForm extends FormBase {
 
         // Get bucket contents
         $s3Objects = [];
+        $n = 0;
 
         do {
           try {
@@ -173,7 +174,7 @@ class S3ContentsForm extends FormBase {
             return $contents;
           }
           $s3Objects = array_merge($s3Objects, $result['Contents']);
-        } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
+        } while ($result['IsTruncated'] && $n++ < 2000); // Will be true until there are no more objects to retrieve.
 
         foreach ($s3Objects as $s3Obj) {
           // Extract application name from backup file name
