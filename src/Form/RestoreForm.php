@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
+use stdClass;
 
 class RestoreForm extends FormBase {
 
@@ -118,25 +119,32 @@ class RestoreForm extends FormBase {
       $app_name = $this->generalizeAppName($app_name);
 
       // Get bucket contents in app_name directory
-      try {
-        $result = $s3->listObjectsV2([
-          'Bucket' => $s3_host_bucket,
-          'Prefix' => $backup_type . '/' . $app_name,
-        ]);
-      } catch(S3Exception $e) {
-        $json['html'][] = "<div><p>listObjectsV2 error... exiting.</p></div>";
-        return new JsonResponse($json);
-      }
+      $params = [
+        'Bucket' => $s3_host_bucket,
+        'Prefix' => $backup_type . '/' . $app_name
+      ];
+      $result = [];
+      do {
+        // Loop until there are no more objects to retrieve.
+        try {
+          $objects = $s3->listObjectsV2($params);
+        } catch(S3Exception $e) {
+          $json['html'][] = "<div><p>listObjectsV2 error... exiting.</p></div>";
+          return new JsonResponse($json);
+        }
+        $result['Contents'] = array_merge($result['Contents'], $objects['Contents']);
+        $params['ContinuationToken'] = $objects['NextContinuationToken'];
+      } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
 
       if (isset($result['Contents'])) {
         // Make an options list from the last 10 items
         $cnt = count($result['Contents']);
-        $start = $cnt > 10 ? $cnt - 10 : 0;
+        $start = $cnt > 31 ? $cnt - 31 : 0;
+        $patterns = array('~/~', '~.tar.gz~', '~.zip~');
+        $replacements = array('', 'targz', 'zip');
+
         for ($n = $start; $n < $cnt; $n++) {
             // Format the selector options in drupalized html
-            $patterns = array('~/~', '~.tar.gz~');
-            $replacements = array('', 'targz');
-
             $filename = preg_replace($patterns, $replacements, $result['Contents'][$n]['Key']);
 
             $label = sprintf('%s (%0.2f MB)',
@@ -164,21 +172,28 @@ class RestoreForm extends FormBase {
       $app_name = $this->generalizeAppName($app_name);
 
       // Get bucket contents in app_name directory
-      try {
-        $result = $s3->listObjectsV2([
-          'Bucket' => $s3_host_bucket,
-          'Prefix' => 'daily/' . $app_name,
-        ]);
-      } catch(S3Exception $e) {
-        return $options;
-      }
+      $params = [
+        'Bucket' => $s3_host_bucket,
+        'Prefix' => 'daily/' . $app_name
+      ];
+      $result =[];
+      do {
+        // Loop until there are no more objects to retrieve.
+        try {
+          $objects = $s3->listObjectsV2($params);
+        } catch(S3Exception $e) {
+          return $options;
+        }
+        $result['Contents'] = array_merge($result['Contents'], $objects['Contents']);
+        $params['ContinuationToken'] = $objects['NextContinuationToken'];
+      } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
 
       if (isset($result['Contents'])) {
-        // Make an options list from the last 10 items
+        // Make an options list from the last 31 items
         $cnt = count($result['Contents']);
-        $start = $cnt > 10 ? $cnt - 10 : 0;
+        $start = $cnt > 31 ? $cnt - 31 : 0;
         for ($n = $start; $n < $cnt; $n++) {
-          $options[$result['Contents'][$n]['Key']] = sprintf('%s (%0.2f MB)',
+            $options[$result['Contents'][$n]['Key']] = sprintf('%s (%0.2f MB)',
             $result['Contents'][$n]['Key'],
             $result['Contents'][$n]['Size'] / 1000000
           );
