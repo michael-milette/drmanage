@@ -80,7 +80,7 @@ class S3ContentsForm extends FormBase {
             drupal_set_message('No content selected.', $type = 'error');
             return;
         }
-        
+
         $action = $form_state->getValue('action');
         switch ($action){
 
@@ -127,7 +127,7 @@ class S3ContentsForm extends FormBase {
                     // Open the file in binary mode
                     if ($fp = fopen($path, 'rb')) {
                         // Set headers
-                        header("Content-Type: application/gzip");
+                        header("Content-Type: application/octet-stream");
                         header("Content-Length: " . filesize($path));
                         header("Content-Disposition: attachment; filename=\"$filename\"");
                         header("Connection: close");
@@ -162,19 +162,23 @@ class S3ContentsForm extends FormBase {
         ]);
 
         // Get bucket contents
-        try {
-          $result = $s3->listObjectsV2([
-            'Bucket' => $s3_host_bucket,
-          ]);
-        } catch(S3Exception $e) {
-          return $contents;
-        }
+        $s3Objects = [];
 
-        for ($n = 0; $n < sizeof($result['Contents']); $n++) {
+        do {
+          try {
+            $result = $s3->listObjectsV2([
+              'Bucket' => $s3_host_bucket,
+            ]);
+          } catch(S3Exception $e) {
+            return $contents;
+          }
+          $s3Objects = array_merge($s3Objects, $result['Contents']);
+        } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
+
+        foreach ($s3Objects as $s3Obj) {
           // Extract application name from backup file name
-          $app_name = preg_match('/([^0-9]*)/', basename($result['Contents'][$n]['Key']), $matches);
+          $app_name = preg_match('/([^0-9]*)/', basename($s3Obj['Key']), $matches);
           $app_name = substr($matches[0], 0, -1);
-          
 
           if ($fp = fopen("/tmp/testing", "a+")) {
             fwrite($fp, $app_name);
@@ -183,14 +187,15 @@ class S3ContentsForm extends FormBase {
           $info = $this->getSiteInfo($app_name);
 
           // Set results for each column
-          $contents[$result['Contents'][$n]['Key']] = [
-              'file' => $result['Contents'][$n]['Key'],
-              'size' => sprintf('%0.2f MB', $result['Contents'][$n]['Size'] / 1000000), // bytes to MB
+          $contents[$s3Obj['Key']] = [
+            'file' => $s3Obj['Key'],
+              'size' => sprintf('%0.2f MB', $s3Obj['Size'] / 1000000), // bytes to MB
               'site_name' => $info['name'],
               'site_type' => $info['type'],
           ];
 
         }
+
         return $contents;
     }
 
@@ -205,13 +210,13 @@ class S3ContentsForm extends FormBase {
         if(!empty($nids)){
             $nid = array_shift($nids);
             $node = \Drupal\node\Entity\Node::load($nid);
-            
+
             $info = array (
                 'name' => $node->getTitle(),
                 'type' => $node->get('field_site_type')->value
             );
             return $info;
-        } 
-        return null;   
+        }
+        return null;
     }
 }
