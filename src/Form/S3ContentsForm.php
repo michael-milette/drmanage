@@ -163,7 +163,6 @@ class S3ContentsForm extends FormBase {
 
         // Get bucket contents
         $s3Objects = [];
-        $n = 0;
         $params = [
           'Bucket' => $s3_host_bucket
         ];
@@ -176,11 +175,10 @@ class S3ContentsForm extends FormBase {
           }
           $s3Objects = array_merge($s3Objects, $result['Contents']);
           $params['ContinuationToken'] = $result['NextContinuationToken'];
-        } while ($result['IsTruncated'] && $n++ < 10); // Will be true until there are no more objects to retrieve.
+        } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
 
-        $n = 0;
         foreach ($s3Objects as $s3Obj) {
-          $n++;
+         $n++;
           // Extract application name from backup file name
           $app_name = preg_match('/([^0-9]*)/', basename($s3Obj['Key']), $matches);
           $app_name = substr($matches[0], 0, -1);
@@ -189,7 +187,7 @@ class S3ContentsForm extends FormBase {
 
           // Set results for each column
           $contents[$s3Obj['Key']] = [
-            'file' => $n . '. ' . $s3Obj['Key'],
+            'file' => $s3Obj['Key'],
             'size' => sprintf('%0.2f MB', $s3Obj['Size'] / 1000000), // bytes to MB
             'site_name' => $info['name'],
             'site_type' => $info['type'],
