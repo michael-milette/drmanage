@@ -174,12 +174,14 @@ class S3ContentsForm extends FormBase {
             return $contents;
           }
           $s3Objects = array_merge($s3Objects, $result['Contents']);
-        } while ($result['IsTruncated'] && $n++ < 2000); // Will be true until there are no more objects to retrieve.
+        } while ($result['IsTruncated'] && $n++ < 2); // Will be true until there are no more objects to retrieve.
 
         foreach ($s3Objects as $s3Obj) {
           // Extract application name from backup file name
           $app_name = preg_match('/([^0-9]*)/', basename($s3Obj['Key']), $matches);
           $app_name = substr($matches[0], 0, -1);
+
+          $info = $this->getSiteInfo($app_name);
 
           // Set results for each column
           $contents[$s3Obj['Key']] = [
