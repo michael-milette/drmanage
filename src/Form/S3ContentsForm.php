@@ -7,7 +7,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
-use stdClass;
 
 class S3ContentsForm extends FormBase {
 

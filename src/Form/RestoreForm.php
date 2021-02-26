@@ -9,7 +9,6 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
-use stdClass;
 
 class RestoreForm extends FormBase {
 
