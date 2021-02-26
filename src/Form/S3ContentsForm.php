@@ -162,10 +162,10 @@ class S3ContentsForm extends FormBase {
         ]);
 
         // Get bucket contents
-        $s3Objects = [];
         $params = [
           'Bucket' => $s3_host_bucket
         ];
+        $s3Objects = [];
 
         do {
           try {
@@ -178,7 +178,6 @@ class S3ContentsForm extends FormBase {
         } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
 
         foreach ($s3Objects as $s3Obj) {
-         $n++;
           // Extract application name from backup file name
           $app_name = preg_match('/([^0-9]*)/', basename($s3Obj['Key']), $matches);
           $app_name = substr($matches[0], 0, -1);

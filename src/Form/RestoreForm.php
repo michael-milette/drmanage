@@ -122,47 +122,47 @@ class RestoreForm extends FormBase {
         'Bucket' => $s3_host_bucket,
         'Prefix' => $backup_type . '/' . $app_name
       ];
-      $result = ['Contents' => []];
+      $s3Objects = [];
+
       do {
         // Loop until there are no more objects to retrieve.
         try {
-          $objects = $s3->listObjectsV2($params);
+          $result = $s3->listObjectsV2($params);
         } catch(S3Exception $e) {
           $json['html'][] = "<div><p>listObjectsV2 error... exiting.</p></div>";
           return new JsonResponse($json);
         }
-        $result['Contents'] = array_merge($result['Contents'], $objects['Contents']);
-        $params['ContinuationToken'] = $objects['NextContinuationToken'];
-      } while (isset($result['IsTruncated'])); // Will be true until there are no more objects to retrieve.
+        $s3Objects = array_merge($s3Objects, $result['Contents']);
+        $params['ContinuationToken'] = $result['NextContinuationToken'];
+      } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
 
-      if (isset($result['Contents'])) {
+      if ($cnt = count($s3Objects)) {
         // Make an options list from the last 10 items
-        $cnt = count($result['Contents']);
         $start = $cnt > 31 ? $cnt - 31 : 0;
         $patterns = array('~/~', '~.tar.gz~', '~.zip~');
         $replacements = array('', 'targz', 'zip');
 
         for ($n = $start; $n < $cnt; $n++) {
-            // Format the selector options in drupalized html
-            $filename = preg_replace($patterns, $replacements, $result['Contents'][$n]['Key']);
+          // Format the selector options in drupalized html
+          $filename = preg_replace($patterns, $replacements, $s3Objects[$n]['Key']);
 
-            $label = sprintf('%s (%0.2f MB)',
-            $result['Contents'][$n]['Key'],
-            $result['Contents'][$n]['Size'] / 1000000);
+          $label = sprintf('%s (%0.2f MB)',
+          $s3Objects[$n]['Key'],
+          $s3Objects[$n]['Size'] / 1000000);
 
-            $html =  '<div class="js-form-item form-item js-form-type-radio form-type--radio form-type--boolean js-form-item-restore form-item--restore">';
-            $html .= '<input data-drupal-selector="edit-restore-' . $filename . '" ';
-            $html .= 'type="radio" id="edit-restore-' . $filename . '" name="restore" ';
-            $html .= 'value="' . $result['Contents'][$n]['Key'] . '"';
-            $html .= 'class="form-radio form-boolean form-boolean--type-radio" tabindex="-1">';
-            $html .= '<label for="edit-restore-' . $filename . '" ';
-            $html .= 'class="form-item_label option">' . $label . '</label></div>';
-            $json['html'][] = $html;
-          }
-        } else {
-          $json['html'][] = '<div><p>No backup files found.</p></div>';
+          $html =  '<div class="js-form-item form-item js-form-type-radio form-type--radio form-type--boolean js-form-item-restore form-item--restore">';
+          $html .= '<input data-drupal-selector="edit-restore-' . $filename . '" ';
+          $html .= 'type="radio" id="edit-restore-' . $filename . '" name="restore" ';
+          $html .= 'value="' . $s3Objects[$n]['Key'] . '"';
+          $html .= 'class="form-radio form-boolean form-boolean--type-radio" tabindex="-1">';
+          $html .= '<label for="edit-restore-' . $filename . '" ';
+          $html .= 'class="form-item_label option">' . $label . '</label></div>';
+          $json['html'][] = $html;
         }
-        return new JsonResponse($json);
+      } else {
+        $json['html'][] = '<div><p>No backup files found.</p></div>';
+      }
+      return new JsonResponse($json);
 
     } else {
       $options = [];
@@ -175,26 +175,26 @@ class RestoreForm extends FormBase {
         'Bucket' => $s3_host_bucket,
         'Prefix' => 'daily/' . $app_name
       ];
-      $result = ['Contents' => []];
+      $s3Objects = [];
+
       do {
         // Loop until there are no more objects to retrieve.
         try {
-          $objects = $s3->listObjectsV2($params);
+          $result = $s3->listObjectsV2($params);
         } catch(S3Exception $e) {
           return $options;
         }
-        $result['Contents'] = array_merge($result['Contents'], $objects['Contents']);
-        $params['ContinuationToken'] = $objects['NextContinuationToken'];
+        $s3Objects = array_merge($s3Objects, $result['Contents']);
+        $params['ContinuationToken'] = $result['NextContinuationToken'];
       } while (isset($result['IsTruncated'])); // Will be true until there are no more objects to retrieve.
 
-      if (isset($result['Contents'])) {
-        // Make an options list from the last 31 items
-        $cnt = count($result['Contents']);
+      if ($cnt = count($s3Objects)) {
+        // Make an options list from the last 31 items.
         $start = $cnt > 31 ? $cnt - 31 : 0;
         for ($n = $start; $n < $cnt; $n++) {
-            $options[$result['Contents'][$n]['Key']] = sprintf('%s (%0.2f MB)',
-            $result['Contents'][$n]['Key'],
-            $result['Contents'][$n]['Size'] / 1000000
+            $options[$s3Objects[$n]['Key']] = sprintf('%s (%0.2f MB)',
+            $s3Objects[$n]['Key'],
+            $s3Objects[$n]['Size'] / 1000000
           );
         }
       } else {
