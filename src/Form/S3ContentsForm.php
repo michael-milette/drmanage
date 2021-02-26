@@ -175,7 +175,7 @@ class S3ContentsForm extends FormBase {
           }
           $s3Objects = array_merge($s3Objects, $result['Contents']);
           $params['ContinuationToken'] = $result['NextContinuationToken'];
-        } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
+        } while (isset($result['IsTruncated'])); // Will be true until there are no more objects to retrieve.
 
         foreach ($s3Objects as $s3Obj) {
           // Extract application name from backup file name
