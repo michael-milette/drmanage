@@ -84,7 +84,7 @@ foreach ($nids as $nid) {
             }
         }
         $params['ContinuationToken'] = $result['NextContinuationToken'];
-    } while ($result['IsTruncated']); // Will be true until there are no more objects to retrieve.
+    } while (!empty($result['IsTruncated'])); // Will be true until there are no more objects to retrieve.
 
 }
 
